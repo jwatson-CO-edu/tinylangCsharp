@@ -50,6 +50,105 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     }
 
 
+    protected Expr ParseFactor() {
+        
+        Log( "parseFactor() called" );
+
+        // Case 1: integer
+        if( Match( TokenType.NUMBER ) ){
+            Log( "parseFactor() matched a ${previous()} , will return literal" );
+            return Expr.NumberLiteral( int.Parse( Previous().literal ) );
+        }
+
+        // Case 2: ( E )
+        if( Match( TokenType.OPEN_PARENTHESIS ) ){
+            Log( "parseFactor() matched an open parenthesis, will parse expression now" );
+            Expr parsedExpression = ParseExpression();
+            Log( "parseFactor() done parsing expression, checking for close parenthesis" );
+            Consume( TokenType.CLOSE_PARENTHESIS, "Failed to parse a factor, expected ) following (" ); 
+            return parsedExpression;
+        }
+
+        // Case 3: identifier
+        if( Match( TokenType.IDENTIFIER ) ){
+            return Expr.Variable( Previous().literal );
+        }
+
+        // Case 4: Function invocation
+        if (match(TokenType.INVOKE)) {
+            val name: String = consume(TokenType.IDENTIFIER, "Expected identifier").literal
+            consume(TokenType.OPEN_PARENTHESIS, "Expected (")
+            val args: MutableList<Expr> = mutableListOf()
+            while(!check(TokenType.CLOSE_PARENTHESIS)) {
+                args.add(parseCExpression())
+                while (match(TokenType.COMMA)) {
+                    args.add(parseCExpression())
+                }
+            }
+            consume(TokenType.CLOSE_PARENTHESIS, "Expected )")
+            return Expr.FunctionCall(name, args)
+        }
+
+        throw new ArgumentException( "Unable to parse factor, expected a number or open parenthesis" );
+    }
+
+
+    protected Expr ParseTerm() {
+        Log( "parseTerm() called, will start by calling parseFactor()" );
+        Expr workingExpression = ParseFactor();
+        Log( "parseTerm() done parsing term, now checking for * / Term" );
+        while( Match( TokenType.STAR, TokenType.SLASH ) ){
+            Log( "parseTerm() found a ${previous()}, will parse term again" );
+            Token Operator = Previous();
+            Expr parsedFactor = ParseFactor();
+            workingExpression = Expr.Binary( workingExpression, Operator, parsedFactor );
+        }
+        return workingExpression;
+    }
+
+
+    protected Expr ParseExpression() {
+        Log( "parseExpression() called, will start by parsing term()" );
+        Expr workingExpression = ParseTerm();
+        Log( "parseExpression() done parsing term, now checking for + - Term" );
+        while( Match( TokenType.PLUS, TokenType.MINUS ) ){
+            Log( "parseExpression() found a ${previous()}, will parse term again" );
+            Token Operator  = Previous();
+            Expr parsedTerm = ParseTerm();
+            // Left unfolding that maintains left-to-right execution of terms of the same precedence
+            workingExpression = Expr.Binary( workingExpression, Operator, parsedTerm );
+        }
+        return workingExpression;
+    }
+
+
+    protected Expr ParseCExpression() {
+        Expr workingExpression = ParseExpression();
+        if( Match( TokenType.LESS_THAN, TokenType.GREATER_THAN ) ){
+            Token Operator /*---*/ = Previous();
+            Expr  parsedExpression = ParseExpression();
+            workingExpression = Expr.Binary( workingExpression, Operator, parsedExpression );
+        }
+        return workingExpression;
+    }
+
+
+    protected Stmt ParseExpressionStatment() {
+        Expr expression = ParseCExpression();
+        Consume( TokenType.SEMICOLON, "Expected ; following expression statement" );
+        return Stmt.ExpressionStmt( expression );
+    }
+
+
+    protected Stmt ParseStatement() {
+        if( Match( TokenType.RETURN ) ){  return ParseReturnStatement();  }
+        if( Match( TokenType.LET    ) ){  return ParseVarDeclaration();   }
+        if( Match( TokenType.UPDATE ) ){  return ParseVarUpdate(); /*--*/ }
+        if( Match( TokenType.IF     ) ){  return ParseIfStatement(); /**/ }
+        return ParseExpressionStatment();
+    }
+
+
     private Stmt ParseFunctionDeclaration() {
         string     name = Consume( TokenType.IDENTIFIER, "Function needs a name" ).literal;
         List<Stmt> body = [];
@@ -84,13 +183,14 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
         List<Stmt> statements = [];
         
         while( !IsAtEnd() ) {
-            statements.add(parseTopLevelStatement())
+            statements.Add( ParseTopLevelStatement() );
         }
 
-        log("parse() done parsing expression, verifying EOF exists")
-        consume(TokenType.END_OF_FILE, "Expected EOF to terminate the program")
+        Log( "parse() done parsing expression, verifying EOF exists" );
+        
+        Consume( TokenType.END_OF_FILE, "Expected EOF to terminate the program" );
 
-        return statements
+        return statements;
     }
 
 

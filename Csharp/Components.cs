@@ -35,11 +35,17 @@ public class Token( TokenType type_, string lit = "" ) {
 
 
 
-public class Expr {
-    public record NumberLiteral ( int Value );
-    public record Binary ( Expr Left, Token Operator, Expr Right );
-    public record Variable ( string Name );
-    public record FunctionCall ( string Name, List<Expr> Arguments );
+public abstract record Expr {
+    public sealed record NumberLiteralCase ( int Value ) : Expr;
+    public sealed record BinaryCase ( Expr Left, Token Operator, Expr Right ) : Expr;
+    public sealed record VariableCase ( string Name ) : Expr;
+    public sealed record FunctionCallCase ( string Name, List<Expr> Arguments ) : Expr;
+
+    public static Expr NumberLiteral( int Value ) => new NumberLiteralCase( Value ); 
+    public static Expr Binary( Expr Left, Token Operator, Expr Right ) => new BinaryCase( Left, Operator, Right ); 
+    public static Expr Variable( string Name ) => new VariableCase( Name ); 
+    public static Expr FunctionCall( string Name, List<Expr> Arguments ) => new FunctionCallCase( Name, Arguments );
+
 }
 
 
