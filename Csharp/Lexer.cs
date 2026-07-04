@@ -28,12 +28,18 @@ public class Lexer( string input_ ) {
     }
 
     
+    /// <summary>
+    /// Return character at cursor without advancing 
+    /// </summary>
     protected char Peek() {
         if( IsAtEnd() ){  return 'd';  }
-        return input[currentPosition];
+        return input[ currentPosition ];
     }
 
 
+    /// <summary>
+    /// Read in a Number token 
+    /// </summary>
     protected void ScanNumber() {
         int startingPositionOfNumber = currentPosition - 1;
         while( char.IsDigit( Peek() ) ){  Advance();  }
@@ -41,6 +47,9 @@ public class Lexer( string input_ ) {
     }
 
     
+    /// <summary>
+    /// Read in an Identifier token 
+    /// </summary>
     protected void ScanIdentifier() {
         int startingPosition = currentPosition - 1;
         
@@ -68,6 +77,9 @@ public class Lexer( string input_ ) {
     }
 
 
+    /// <summary>
+    /// Read in one token of any type 
+    /// </summary>
     protected void ScanNextToken() {
         char currentCharacter = Advance();
 
@@ -125,6 +137,9 @@ public class Lexer( string input_ ) {
     }
 
 
+    /// <summary>
+    /// Convert `input` to a list of `Token`s 
+    /// </summary>
     public List<Token> ScanTokens() {
         while( !IsAtEnd() ){  ScanNextToken();  }
         tokens.Add( new Token( TokenType.END_OF_FILE ) );
