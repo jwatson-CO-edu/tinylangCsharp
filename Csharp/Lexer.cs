@@ -68,10 +68,65 @@ public class Lexer( string input_ ) {
     }
 
 
+    protected void ScanNextToken() {
+        char currentCharacter = Advance();
+
+        if( char.IsDigit( currentCharacter ) ){
+            ScanNumber();
+        }else if( char.IsLetter( currentCharacter ) ){
+            ScanIdentifier();
+        }else if( char.IsWhiteSpace( currentCharacter ) ){
+            // PASS
+        }else{
+            switch( currentCharacter ){
+                case ',':
+                    tokens.Add( new Token( TokenType.COMMA ) );
+                    break;
+                case '{':
+                    tokens.Add( new Token( TokenType.OPEN_BRACE ) );
+                    break;
+                case '}':
+                    tokens.Add( new Token( TokenType.CLOSE_BRACE ) );
+                    break;
+                case '=':
+                    tokens.Add( new Token( TokenType.EQUAL ) );
+                    break;
+                case ';':
+                    tokens.Add( new Token( TokenType.SEMICOLON ) );
+                    break;
+                case '(':
+                    tokens.Add( new Token( TokenType.OPEN_PARENTHESIS ) );
+                    break;
+                case ')':
+                    tokens.Add( new Token( TokenType.CLOSE_PARENTHESIS ) );
+                    break;
+                case '+':
+                    tokens.Add( new Token( TokenType.PLUS ) );
+                    break;
+                case '-':
+                    tokens.Add( new Token( TokenType.MINUS ) );
+                    break;
+                case '*':
+                    tokens.Add( new Token( TokenType.STAR ) );
+                    break;
+                case '/':
+                    tokens.Add( new Token( TokenType.SLASH ) );
+                    break;
+                case '>':
+                    tokens.Add( new Token( TokenType.GREATER_THAN ) );
+                    break;
+                case '<':
+                    tokens.Add( new Token( TokenType.LESS_THAN ) );
+                    break;
+                default:
+                    throw new ArgumentException( $"Unexpected token: {currentCharacter}" );
+            }
+        }        
+    }
+
+
     public List<Token> ScanTokens() {
-        while( !IsAtEnd() ){
-            // ScanNextToken()
-        }
+        while( !IsAtEnd() ){  ScanNextToken();  }
         tokens.Add( new Token( TokenType.END_OF_FILE ) );
         return tokens;
     }
