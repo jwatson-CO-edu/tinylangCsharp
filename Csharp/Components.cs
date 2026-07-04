@@ -44,13 +44,24 @@ public class Expr {
 
 
 
-public class Stmt { 
-    public record VarDeclaration ( string Name, Expr Initializer );
-    public record ExpressionStmt ( Expr Expression );
-    public record VarUpdate ( string Name, Expr Value );
-    public record IfStmt ( Expr Condition, List<Stmt> Body );
-    public record FunctionDeclaration ( string Name, List<string> Parameters, List<Stmt> Body );
-    public record ReturnStmt ( Expr Value );
+public abstract record Stmt{
+
+    // concrete cases - names are internal implementation detail
+    public sealed record VarDeclarationCase( string Name, Expr Initializer ) : Stmt;
+    public sealed record ExpressionStmtCase( Expr Expression ) : Stmt;
+    public sealed record VarUpdateCase( string Name, Expr Value ) : Stmt;
+    public sealed record IfStmtCase( Expr Condition, List<Stmt> Body ) : Stmt;
+    public sealed record FunctionDeclarationCase( string Name, List<string> Parameters, List<Stmt> Body ) : Stmt;
+    public sealed record ReturnStmtCase( Expr Value ) : Stmt;
+
+    // factory methods - this is the API you actually call
+    public static Stmt VarDeclaration( string name, Expr initializer ) => new VarDeclarationCase( name, initializer );
+    public static Stmt ExpressionStmt( Expr expression ) => new ExpressionStmtCase( expression );
+    public static Stmt VarUpdate( string name, Expr value ) => new VarUpdateCase( name, value );
+    public static Stmt IfStmt( Expr condition, List<Stmt> body ) => new IfStmtCase( condition, body );
+    public static Stmt FunctionDeclaration( string name, List<string> parameters, List<Stmt> body ) => 
+        new FunctionDeclarationCase( name, parameters, body );
+    public static Stmt ReturnStmt( Expr value ) => new ReturnStmtCase( value );
 }
 
 
