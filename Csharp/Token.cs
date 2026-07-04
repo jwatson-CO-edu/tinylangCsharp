@@ -26,9 +26,9 @@ public enum TokenType {
 
 namespace tlCsharp{
 
-    public class Token {
-        public TokenType type;
-        public string    literal = "";
+    public class Token( TokenType type_, string lit = "" ) {
+        public TokenType type    = type_;
+        public string    literal = lit;
     }
 
 }
