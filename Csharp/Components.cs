@@ -71,5 +71,30 @@ public abstract record Stmt{
 }
 
 
+public abstract record Instruction {
+    // Private constructor: no code outside this file can subclass Instruction,
+    // because you can't call a private constructor from outside.
+    // Nested types CAN call it (C# lets nested types see the outer type's privates).
+    private Instruction() { }
+
+    public sealed record PushInt( int Value ) : Instruction;
+
+    public sealed record Add /*---*/ : Instruction {  public override string ToString() => "Add";  }
+    public sealed record Sub /*---*/ : Instruction {  public override string ToString() => "Sub";  }
+    public sealed record Mul /*---*/ : Instruction {  public override string ToString() => "Mul";  }
+    public sealed record Div /*---*/ : Instruction {  public override string ToString() => "Div";  }
+    public sealed record LessThan    : Instruction {  public override string ToString() => "LessThan";  }
+    public sealed record GreaterThan : Instruction {  public override string ToString() => "GreaterThan";  }
+
+    public sealed record LoadLocal( int Slot ) : Instruction;
+    public sealed record StoreLocal( int Slot ) : Instruction;
+    public sealed record JumpIfFalse( int Target ) : Instruction;
+    public sealed record Jump( int Target ) : Instruction;
+    public sealed record CallFunction( int Address, int Arity ) : Instruction;
+    
+    public sealed record Return : Instruction {  public override string ToString() => "Return";  }
+}
+
+
 }
 
