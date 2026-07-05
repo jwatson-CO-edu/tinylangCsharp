@@ -98,9 +98,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
         }
 
         // Case 3: identifier
-        if( Match( TokenType.IDENTIFIER ) ){
-            return Expr.Variable( Previous().literal );
-        }
+        if( Match( TokenType.IDENTIFIER ) ){  return Expr.Variable( Previous().literal );  }
 
         // Case 4: Function invocation
         if( Match( TokenType.INVOKE ) ){
@@ -109,9 +107,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
             Consume( TokenType.OPEN_PARENTHESIS, "Expected (" );
             while( !Check( TokenType.CLOSE_PARENTHESIS ) ){
                 args.Add( ParseCompareExpression() );
-                while( Match( TokenType.COMMA ) ){
-                    args.Add( ParseCompareExpression() );
-                }
+                while( Match( TokenType.COMMA ) ){  args.Add( ParseCompareExpression() );  }
             }
             Consume( TokenType.CLOSE_PARENTHESIS, "Expected )" );
             return Expr.FunctionCall( name, args );
@@ -223,9 +219,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
         Consume( TokenType.CLOSE_PARENTHESIS, "Expected ) after if" ); 
         Consume( TokenType.OPEN_BRACE, "Expected { after )" );
         List<Stmt> body = [];
-        while( !Check( TokenType.CLOSE_BRACE ) && !IsAtEnd() ){
-            body.Add( ParseStatement() );
-        }
+        while( !Check( TokenType.CLOSE_BRACE ) && !IsAtEnd() ){  body.Add( ParseStatement() );  }
         Consume( TokenType.CLOSE_BRACE, "Expected } to end if statement body" );
         Consume( TokenType.SEMICOLON, "Expected ; to end if statement" );
         return Stmt.IfStmt( condition, body );
@@ -270,9 +264,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     /// Parse any statement
     /// </summary>
     protected Stmt ParseTopLevelStatement() {
-        if( Match( TokenType.FUN ) ){
-            return ParseFunctionDeclaration();
-        }
+        if( Match( TokenType.FUN ) ){  return ParseFunctionDeclaration();  }
         return ParseStatement();
     }
 
@@ -281,19 +273,11 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     /// Top-level public function that runs the parser
     /// </summary>
     public List<Stmt> Parse() {
-        
-        Log( "parse() Top level public parse function called" );
-        
         List<Stmt> statements = [];
-        
-        while( !IsAtEnd() ) {
-            statements.Add( ParseTopLevelStatement() );
-        }
-
+        Log( "parse() Top level public parse function called" );
+        while( !IsAtEnd() ){  statements.Add( ParseTopLevelStatement() );  }
         Log( "parse() done parsing expression, verifying EOF exists" );
-        
         Consume( TokenType.END_OF_FILE, "Expected EOF to terminate the program" );
-
         return statements;
     }
 

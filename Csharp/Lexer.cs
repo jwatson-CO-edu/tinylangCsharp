@@ -23,9 +23,7 @@ public class Lexer( string input_ ) {
     /// <summary>
     /// Return true if the cursor 
     /// </summary>
-    protected bool IsAtEnd() {
-        return currentPosition >= input.Length;
-    }
+    protected bool IsAtEnd() {  return currentPosition >= input.Length;  }
 
     
     /// <summary>
@@ -147,7 +145,6 @@ public class Lexer( string input_ ) {
     }
 
 }
-
 
 
 }
