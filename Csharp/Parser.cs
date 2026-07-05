@@ -75,18 +75,18 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
         }
 
         // Case 4: Function invocation
-        if (match(TokenType.INVOKE)) {
-            val name: String = consume(TokenType.IDENTIFIER, "Expected identifier").literal
-            consume(TokenType.OPEN_PARENTHESIS, "Expected (")
-            val args: MutableList<Expr> = mutableListOf()
-            while(!check(TokenType.CLOSE_PARENTHESIS)) {
-                args.add(parseCExpression())
-                while (match(TokenType.COMMA)) {
-                    args.add(parseCExpression())
+        if( Match( TokenType.INVOKE ) ){
+            string     name = Consume( TokenType.IDENTIFIER, "Expected identifier" ).literal;
+            List<Expr> args = [];
+            Consume( TokenType.OPEN_PARENTHESIS, "Expected (" );
+            while( !Check( TokenType.CLOSE_PARENTHESIS ) ){
+                args.Add( ParseCExpression() );
+                while( Match( TokenType.COMMA ) ){
+                    args.Add( ParseCExpression() );
                 }
             }
-            consume(TokenType.CLOSE_PARENTHESIS, "Expected )")
-            return Expr.FunctionCall(name, args)
+            Consume( TokenType.CLOSE_PARENTHESIS, "Expected )" );
+            return Expr.FunctionCall( name, args );
         }
 
         throw new ArgumentException( "Unable to parse factor, expected a number or open parenthesis" );
@@ -137,6 +137,46 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
         Expr expression = ParseCExpression();
         Consume( TokenType.SEMICOLON, "Expected ; following expression statement" );
         return Stmt.ExpressionStmt( expression );
+    }
+
+
+    protected Stmt ParseReturnStatement() {
+        Expr value = ParseCExpression();
+        Consume( TokenType.SEMICOLON, "Expected ;" );
+        return Stmt.ReturnStmt( value );
+    }
+
+
+    protected Stmt ParseVarDeclaration() {
+        string name = Consume( TokenType.IDENTIFIER, "Expect a name for a variable declaration" ).literal;
+        Consume( TokenType.EQUAL, "Expected = sign after variable name" );
+        Expr initializer = ParseExpression();
+        Consume( TokenType.SEMICOLON, "Expected ; following variable declaration" );
+        return Stmt.VarDeclaration( name, initializer );
+    }
+
+
+    protected Stmt ParseVarUpdate() {
+        string name = Consume( TokenType.IDENTIFIER, "must specify variable name to update" ).literal;
+        Consume( TokenType.TO, "Expected literal 'to'" );
+        Expr value = ParseExpression();
+        Consume( TokenType.SEMICOLON, "Expected semicolon to end statement" );
+        return Stmt.VarUpdate( name, value );
+    }
+
+
+    protected Stmt ParseIfStatement() {
+        Consume( TokenType.OPEN_PARENTHESIS, "Expected ( after if" );
+        Expr condition = ParseCExpression();
+        Consume( TokenType.CLOSE_PARENTHESIS, "Expected ) after if" ); 
+        Consume( TokenType.OPEN_BRACE, "Expected { after )" );
+        List<Stmt> body = [];
+        while( !Check( TokenType.CLOSE_BRACE ) && !IsAtEnd() ){
+            body.Add( ParseStatement() );
+        }
+        Consume( TokenType.CLOSE_BRACE, "Expected } to end if statement body" );
+        Consume( TokenType.SEMICOLON, "Expected ; to end if statement" );
+        return Stmt.IfStmt( condition, body );
     }
 
 
