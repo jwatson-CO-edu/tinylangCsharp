@@ -9,6 +9,12 @@ public class Compiler( bool shouldLog_ = true ) {
         public bool /*-------------*/ isFunctionBody;
 
         public LocalContext(){  locals = [];  nextLocalSlot = 0;  isFunctionBody = false;  }
+
+        public int GetNextSlot(){
+            int rtn = nextLocalSlot;
+            nextLocalSlot += 1;
+            return rtn;
+        }
     };
 
 
@@ -127,98 +133,69 @@ public class Compiler( bool shouldLog_ = true ) {
         
         if( stmt is Stmt.ExpressionStmtCase stmtES ){
             Emit( stmtES.Expression, instructions, context);
-        }else if( stmt is Stmt.VarDeclarationCase ){
-            // FIXME: START HERE
-        }else if( stmt is Stmt.VarUpdateCase ){
-            
-        }else if( stmt is Stmt.IfStmtCase ){
-            
-        }else if( stmt is Stmt.FunctionDeclarationCase ){
-            
-        }else if( stmt is Stmt.ReturnStmtCase ){
-            
-        }
 
-        
-        when () {
-            is Stmt.ExpressionStmt -> {
-                
+        }else if( stmt is Stmt.VarDeclarationCase stmtVD ){
+            if ( context.locals.TryGetValue( stmtVD.Name, out _ ) )
+                throw new InvalidOperationException( $"Duplicate definition of variable detected ${stmtVD.Name}" );
+            Emit( stmtVD.Initializer, instructions, context );
+            int slot = context.GetNextSlot();
+            context.locals[ stmtVD.Name ] = slot;
+            instructions.Add( new Instruction.StoreLocal( slot ) );
+
+        }else if( stmt is Stmt.VarUpdateCase stmtVU ){
+            int slot = context.locals[ stmtVU.Name ];
+            if( slot == 0 ){
+                throw new InvalidOperationException( $"Failed to update a variable with ${stmtVU.Name} as name before declaration" );
             }
-            is Stmt.VarDeclaration -> {
-                if (context.locals.containsKey(stmt.name)) {
-                error("Duplicate definition of variable detected ${stmt.name}")
-                }
-                emit(stmt.initializer, instructions, context)
-                val slot: Int = context.nextLocalSlot
-                context.nextLocalSlot = context.nextLocalSlot + 1
-                context.locals[stmt.name] = slot
-                instructions.add(Instruction.StoreLocal(slot))
-            }
-            is Stmt.VarUpdate -> {
-                val slot: Int? = context.locals[stmt.name]
-                if (slot == null) {
-                error("Failed to update a variable with ${stmt.name} as name before declaration")
-                }
-                emit(stmt.value, instructions, context)
-                instructions.add(Instruction.StoreLocal(slot))
-            }
+            Emit( stmtVU.Value, instructions, context );
+            instructions.Add( new Instruction.StoreLocal( slot ) );
+
         /*
-            * instructions before the if statement
-            * instructions nededed to evaluate the condition of the if statement
-            * jump if false instruction 
-            * instructions for each statement in the body of the if-statement {..}
-            * target jump location
-            */
-            is Stmt.IfStmt -> {
-            emit(stmt.condition, instructions, context)
-            val jumpInstructionIndex: Int = instructions.size
-            instructions.add(Instruction.JumpIfFalse(999))
-            stmt.body.forEach { bodyStatement: Stmt -> emit(bodyStatement, instructions, context) }
-            val realJumpLocation: Int = instructions.size
-            instructions[jumpInstructionIndex] = Instruction.JumpIfFalse(realJumpLocation)
+        * instructions before the if statement
+        * instructions nededed to evaluate the condition of the if statement
+        * jump if false instruction 
+        * instructions for each statement in the body of the if-statement {..}
+        * target jump location
+        */
+        }else if( stmt is Stmt.IfStmtCase stmtIF ){
+            Emit( stmtIF.Condition, instructions, context );
+            int jumpInstructionIndex = instructions.Count;
+            instructions.Add( new Instruction.JumpIfFalse( 999 ) );
+            foreach( Stmt bodyStatement in stmtIF.Body ){  Emit( bodyStatement, instructions, context );  }
+            int realJumpLocation = instructions.Count;
+            instructions[ jumpInstructionIndex ] = new Instruction.JumpIfFalse( realJumpLocation );
+        }else if( stmt is Stmt.FunctionDeclarationCase ){
+            throw new InvalidOperationException( "Functions can only be declared at the top level" );
+            
+        }else if( stmt is Stmt.ReturnStmtCase stmtRT ){
+            if( !context.isFunctionBody ){
+                throw new InvalidOperationException( "Return statements may only appear within the body of a function" );
             }
-            is Stmt.FunctionDeclaration -> {
-            error("Functions can only be declared at the top level")
-            }
-            is Stmt.ReturnStmt -> {
-            if (!context.isFunctionBody) {
-                error("Return statements may only appear within the body of a function")
-            }
-            emit(stmt.value, instructions, context)
-            instructions.add(Instruction.Return)
-            }
+            Emit( stmtRT.Value, instructions, context );
+            instructions.Add( new Instruction.Return() );
         }
     }   
+
 
     protected void EmitFunctionDeclaration( Stmt.FunctionDeclarationCase stmt, List<Instruction> instructions ) {
         if( stmt.Body[~1] is not Stmt.ReturnStmtCase ) {
             throw new InvalidOperationException( "Functions need to end with a return statement." );
         }
 
-        LocalContext functionContext = new(){
-            isFunctionBody = true
-        };
+        LocalContext functionContext = new(){  isFunctionBody = true  };
 
         foreach( string parameter in stmt.Parameters ){
-            if (!functionContext.locals.TryGetValue(parameter, out int _))
+            if( !functionContext.locals.TryGetValue(parameter, out int _) )
                 throw new InvalidOperationException( "Duplicate param defeinition" );
             int slot = functionContext.nextLocalSlot;
             functionContext.nextLocalSlot += 1;
-            functionContext.locals[parameter] = slot;
+            functionContext.locals[ parameter ] = slot;
         }
 
-        foreach( Stmt bodyStatement in stmt.Body ){
-            
-        }
+        foreach( Stmt bodyStatement in stmt.Body ){  Emit( bodyStatement, instructions, functionContext );  }
 
-            
     }
         
-        .forEach {  -> 
-            emit(bodyStatement, instructions, functionContext)
-        }
-    }
-
 }   
 
 
