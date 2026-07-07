@@ -11,6 +11,9 @@ public class Machine {
     protected List<int?>   restoreLocals /*----*/ = [];
 
 
+    /// <summary>
+    /// Pop an value from the top of the stack
+    /// </summary>
     protected int? Pop() {
         if( stack.Count == 0 ){  throw new InvalidOperationException( "Stack underflow" );  }
         int? rtn = stack[~1];
@@ -19,12 +22,18 @@ public class Machine {
     }
 
 
+    /// <summary>
+    /// Expand local vars to the given slot (if needed), then store in that slot
+    /// </summary>
     protected static void StoreLocal( List<int?> activeLocals, int slot, int? value ) {
         while ( activeLocals.Count <= slot ){  activeLocals.Add(0);  }
         activeLocals[slot] = value;
     }
 
 
+    /// <summary>
+    /// Fetch a value from the specified slot
+    /// </summary>
     protected static int? LoadLocal( List<int?> activeLocals, int? slot ) {
         if( slot == null ){ return null; }
         // slot ??= 0;
@@ -35,6 +44,9 @@ public class Machine {
     }
 
 
+    /// <summary>
+    /// Create slots for the function local context
+    /// </summary>
     protected List<int?> CreateFunctionLocals( int arity ) {
         List<int?> callLocals = [];
         List<int?> arguments  = [];
@@ -44,13 +56,16 @@ public class Machine {
         arguments.Reverse();
 
         for( int index = 0; index < arguments.Count; ++index ){
-            StoreLocal(callLocals, index, arguments[ index ] );
+            StoreLocal( callLocals, index, arguments[ index ] );
         }
 
         return callLocals;
     }
     
 
+    /// <summary>
+    /// (protected) Execute program as a list of instructions
+    /// </summary>
     protected int? Execute( Instruction instruction, List<int?> activeLocals,
                             int nextInstructionPointer, Action<List<int?>> restoreLocals ) 
     {
@@ -109,6 +124,9 @@ public class Machine {
     }
 
 
+    /// <summary>
+    /// (public) Execute program as a list of instructions, Handle the program counter
+    /// </summary>
     public List<int?> Run( List<Instruction> instructions ){
         stack.Clear();
         callStack.Clear();
