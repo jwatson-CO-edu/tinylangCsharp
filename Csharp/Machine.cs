@@ -130,7 +130,7 @@ public class Machine {
     public List<int?> Run( List<Instruction> instructions ){
         stack.Clear();
         callStack.Clear();
-        List<int?> activeLocals = new();
+        List<int?> activeLocals = [];
         int instructionPointer = 0;
 
         while (instructionPointer < instructions.Count) {
