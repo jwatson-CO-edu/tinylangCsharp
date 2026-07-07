@@ -130,8 +130,8 @@ public class Compiler( bool shouldLog_ = true ) {
         
         // Variable Value: Load the value at the given slot
         }else if( expr is Expr.VariableCase exprVR ){
-            int slot = context.locals[ exprVR.Name ];
-            if( slot == 0 ){
+            int? slot = context.locals[ exprVR.Name ];
+            if( slot == null ){
                 throw new InvalidOperationException( $"Referencing undefined variable ${exprVR.Name}" );
             }
             instructions.Add( new Instruction.LoadLocal( slot ) );

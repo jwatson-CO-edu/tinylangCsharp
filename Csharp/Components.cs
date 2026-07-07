@@ -86,11 +86,11 @@ public abstract record Instruction {
     public sealed record LessThan    : Instruction {  public override string ToString() => "LessThan";  }
     public sealed record GreaterThan : Instruction {  public override string ToString() => "GreaterThan";  }
 
-    public sealed record LoadLocal( int Slot ) : Instruction;
+    public sealed record LoadLocal( int? Slot ) : Instruction;
     public sealed record StoreLocal( int Slot ) : Instruction;
-    public sealed record JumpIfFalse( int Target ) : Instruction;
-    public sealed record Jump( int Target ) : Instruction;
-    public sealed record CallFunction( int Address, int Arity ) : Instruction;
+    public sealed record JumpIfFalse( int? Target ) : Instruction;
+    public sealed record Jump( int? Target ) : Instruction;
+    public sealed record CallFunction( int? Address, int Arity ) : Instruction;
     
     public sealed record Return : Instruction {  public override string ToString() => "Return";  }
 }
@@ -98,7 +98,7 @@ public abstract record Instruction {
 
 public class CallFrame{
     public int /*-*/ returnAddress = -1;
-    public List<int> locals /*--*/ = [];
+    public List<int?> locals /*--*/ = [];
 }
 
 
