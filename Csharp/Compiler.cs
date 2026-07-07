@@ -246,6 +246,53 @@ public class Compiler( bool shouldLog_ = true ) {
 
         foreach( Stmt bodyStatement in stmt.Body ){  Emit( bodyStatement, instructions, functionContext );  }
     }
+
+
+    protected void RegisterSignature( Stmt.FunctionDeclarationCase stmt ) {
+
+        if( functionSignatures.TryGetValue( stmt.Name, out FunctionSignature _ ) )
+            throw new InvalidOperationException( "Duplicate function declaration" );
+
+        HashSet<string> seenParameters = [];
+
+        foreach( string parameter in stmt.Parameters ){
+            if( !seenParameters.Add( parameter ) ){
+                throw new InvalidOperationException( "Duplicate param definition in function" );
+            }
+        }
+    }
+
+
+    public CompileResult Compile( List<Stmt> statements )  {
+        Log( "Top level compile function called" );
+        LocalContext /**/ mainContext  = new();
+        List<Instruction> instructions = [];
+        
+        instructions.Add( new Instruction.Jump( 999 ) );
+        
+        // Register function signature
+        foreach( Stmt statement in statements ){
+            if( statement is Stmt.FunctionDeclarationCase stmtFnc ){  RegisterSignature( stmtFnc );  }
+        }
+        
+        // Parse function bodies
+        foreach( Stmt statement in statements ){
+            if( statement is Stmt.FunctionDeclarationCase stmtFnc ){
+                SetFunctionAddress( stmtFnc.Name, instructions.Count );
+                EmitFunctionDeclaration( stmtFnc, instructions );
+            }
+        }
+        
+        instructions[0] = new Instruction.Jump( instructions.Count );
+        foreach( Stmt statement in statements ){
+            if( statement is not Stmt.FunctionDeclarationCase ){
+                Emit( statement, instructions, mainContext ); 
+            }
+        }
+        PatchFunctionCalls( instructions );
+        return new CompileResult( instructions );
+    }
+
 }   
 
 

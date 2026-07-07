@@ -102,5 +102,10 @@ public class CallFrame{
 }
 
 
+public record class CompileResult(
+    List<Instruction> Instructions
+);
+
+
 }
 
