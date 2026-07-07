@@ -97,7 +97,7 @@ public abstract record Instruction {
 
 
 public class CallFrame{
-    public int /*-*/ returnAddress = -1;
+    public int? /*-*/ returnAddress = null;
     public List<int?> locals /*--*/ = [];
 }
 

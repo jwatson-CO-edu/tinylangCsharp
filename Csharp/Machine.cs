@@ -6,9 +6,9 @@ public class Machine {
     protected List<CallFrame> callStack = [];
 
     protected Instruction? instruction /*------*/ = null;
-    protected List<int?>    activeLocals /*-----*/ = [];
-    protected int /*----*/ nextInstructionPointer = -1;
-    protected List<int?>    restoreLocals /*----*/ = [];
+    protected List<int?>   activeLocals /*-----*/ = [];
+    protected int? /*---*/ nextInstructionPointer = null;
+    protected List<int?>   restoreLocals /*----*/ = [];
 
 
     protected int? Pop() {
