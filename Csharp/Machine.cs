@@ -47,6 +47,7 @@ public class Machine {
 
         return callLocals;
     }
+    
 
     protected int? Execute( Instruction instruction, List<int> activeLocals,
                             int nextInstructionPointer, Action<List<int>> restoreLocals ) {
