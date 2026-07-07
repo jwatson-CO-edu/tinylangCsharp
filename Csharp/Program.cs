@@ -33,7 +33,7 @@ Console.WriteLine("====");
 
 Lexer /*-*/ lexer  = new(source);
 List<Token> tokens = lexer.ScanTokens();
-// tokens.forEach { token: Token -> Console.WriteLine(token)}
+foreach( Token token in tokens ){  Console.WriteLine( token );  }
 
 Parser     parser  = new( tokens, shouldLog_ : false );
 List<Stmt> program = parser.Parse();
