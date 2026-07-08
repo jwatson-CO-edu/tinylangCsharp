@@ -2,7 +2,7 @@ namespace tlCsharp{
 
 public class Machine {
 
-    protected List<int?> /*-*/ stack     = [];
+    protected List<int?> /**/ stack     = [];
     protected List<CallFrame> callStack = [];
 
     protected Instruction? instruction /*------*/ = null;
@@ -27,7 +27,7 @@ public class Machine {
     /// </summary>
     protected static void StoreLocal( List<int?> activeLocals, int? slot, int? value ) {
         if( slot != null ){
-            while ( activeLocals.Count <= slot ){  activeLocals.Add(0);  }
+            while ( activeLocals.Count <= slot ){  activeLocals.Add( null );  }
             activeLocals[ (int) slot ] = value;
         }
     }
@@ -37,9 +37,9 @@ public class Machine {
     /// Fetch a value from the specified slot
     /// </summary>
     protected static int? LoadLocal( List<int?> activeLocals, int? slot ) {
-        if( slot == null ){ return null; }
+        // if( slot == null ){ return null; }
         // slot ??= 0;
-        if ( (slot >= activeLocals.Count) || (activeLocals[ (int) slot ] == null) ) {
+        if( (slot == null) || (slot >= activeLocals.Count) || (activeLocals[ (int) slot ] == null) ){
             throw new InvalidOperationException( $"Undefined local slot {slot}" );
         }
         return activeLocals[ (int) slot ];
@@ -115,7 +115,7 @@ public class Machine {
             callStack.Add( frame );
             restoreLocals( callLocals );
             return insCal.Address;    
-        }else if( instruction is Instruction.Return insRtn ){
+        }else if( instruction is Instruction.Return ){
             if( callStack.Count == 0 ){  return null;  }
             CallFrame frame = callStack[~1];
             callStack.RemoveAt( callStack.Count-1 );
@@ -134,18 +134,19 @@ public class Machine {
         callStack.Clear();
         List<int?> activeLocals = [];
         int? instructionPointer = 0;
+        int? nextInstructionPointer = null;
 
-        while (instructionPointer < instructions.Count) {
+        while( instructionPointer < instructions.Count ){
 
-
-            int? nextInstructionPointer = Execute(
+             nextInstructionPointer = Execute(
                 instructions[(int)instructionPointer],
                 activeLocals,
                 instructionPointer + 1,
                 restoredLocals => { activeLocals = restoredLocals; }
             );
             instructionPointer = nextInstructionPointer ?? instructionPointer + 1;
-            Console.WriteLine( $"Instruction Pointer: {instructionPointer}" );
+            Console.WriteLine( $"\nNext Instruction Pointer: {nextInstructionPointer}" );
+            Console.WriteLine( $"Instruction Pointer: ____ {instructionPointer}" );
         }
         return [.. stack];
     }

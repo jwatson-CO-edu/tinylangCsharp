@@ -111,6 +111,12 @@ public class Compiler( bool shouldLog_ = true ) {
     protected void Emit( Expr expr, List<Instruction> instructions, LocalContext context ) {
         int logId = GetNextUnique();
 
+        Log( $"[{logId}] Current context locals:" );
+        foreach( string key in context.locals.Keys ){  Console.WriteLine( $"\t{key}: {context.locals[key]}" );  }
+
+        Log( $"[{logId}] Current instructions:" );
+        foreach( Instruction instruction in instructions ){  Console.WriteLine( $"\t{instruction}" );  }
+
         // Number Literal: Push an int onto the stack
         if( expr is Expr.NumberLiteralCase exprNL ){
             Log( $"[{logId}] Emit called with number literal ${exprNL.Value}" );
@@ -118,7 +124,7 @@ public class Compiler( bool shouldLog_ = true ) {
 
         // Binary Operation: Apply an operation to two literals
         }else if( expr is Expr.BinaryCase exprBN ){
-            Log( $"[{logId}] Emit called with binary expression ${expr}");
+            Log( $"[{logId}] Emit called with binary expression ${exprBN}");
             Log( $"[{logId}] Recursing on the left side");
             Emit( exprBN.Left, instructions, context );
 
@@ -133,11 +139,12 @@ public class Compiler( bool shouldLog_ = true ) {
 
             int? slot = context.locals[ exprVR.Name ];
 
-            Log( $"[{logId}] Fetch variable {exprVR.Name} from local context at slot {slot}" );
-
             if( slot == null ){
                 throw new InvalidOperationException( $"Referencing undefined variable ${exprVR.Name}" );
             }
+
+            Log( $"[{logId}] Fetch variable {exprVR.Name} from local context at slot {slot}" );
+
             instructions.Add( new Instruction.LoadLocal( slot ) );
 
         // Function Call: 
@@ -183,15 +190,18 @@ public class Compiler( bool shouldLog_ = true ) {
             if( context.locals.TryGetValue( stmtVD.Name, out _ ) )
                 throw new InvalidOperationException( $"Duplicate definition of variable detected ${stmtVD.Name}" );
             
-            Log( "WARNING: I DON'T KNOW WHAT THIS DOES" );
             Emit( stmtVD.Initializer, instructions, context ); // WARNING: I DON'T KNOW WHAT THIS DOES
             
             int? slot = context.GetNextSlot();
+            Log( $"Declare Variable {stmtVD.Name} @ Slot {slot}" );
+
             context.locals[ stmtVD.Name ] = slot;
             instructions.Add( new Instruction.StoreLocal( slot ) );
 
         // Variable Update: Store a value in an existing named slot
         }else if( stmt is Stmt.VarUpdateCase stmtVU ){
+            if( !context.locals.TryGetValue( stmtVU.Name, out _ ) )
+                throw new InvalidOperationException( $"Failed to update a variable with {stmtVU.Name} as name before declaration" );
             int? slot = context.locals[ stmtVU.Name ];
             if( slot == null ){
                 throw new InvalidOperationException( $"Failed to update a variable with {stmtVU.Name} as name before declaration" );
@@ -241,7 +251,8 @@ public class Compiler( bool shouldLog_ = true ) {
         LocalContext functionContext = new(){  isFunctionBody = true  };
 
         foreach( string parameter in stmt.Parameters ){
-            if( !functionContext.locals.TryGetValue( parameter, out int? _ ) )
+            // if( !functionContext.locals.TryGetValue( parameter, out int? _ ) )
+            if( functionContext.locals.TryGetValue( parameter, out int? _ ) )
                 throw new InvalidOperationException( "Duplicate param defeinition" );
             int? slot = functionContext.GetNextSlot();
             functionContext.locals[ parameter ] = slot;
