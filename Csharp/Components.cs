@@ -31,15 +31,26 @@ public enum TokenType {
 public class Token( TokenType type_, string lit = "" ) {
     public TokenType type    = type_;
     public string    literal = lit;
+
+
+    public override string ToString() => $"<T : {type} = '{literal}'>";
 }
 
 
 
 public abstract record Expr {
-    public sealed record NumberLiteralCase ( int Value ) : Expr;
-    public sealed record BinaryCase ( Expr Left, Token Operator, Expr Right ) : Expr;
-    public sealed record VariableCase ( string Name ) : Expr;
-    public sealed record FunctionCallCase ( string Name, List<Expr> Arguments ) : Expr;
+    public sealed record NumberLiteralCase ( int Value ) : Expr {  
+        public override string ToString() => $"<E : Number = {Value}>";  
+    }
+    public sealed record BinaryCase ( Expr Left, Token Operator, Expr Right ) : Expr {  
+        public override string ToString() => $"<E : Op = {Left} {Operator} {Right}>";  
+    }
+    public sealed record VariableCase ( string Name ) : Expr {  
+        public override string ToString() => $"<E : Var = {Name}>";  
+    }
+    public sealed record FunctionCallCase ( string Name, List<Expr> Arguments ) : Expr {  
+        public override string ToString() => $"<E : Var = {Name}, {Arguments}>";  
+    }
 
     public static Expr NumberLiteral( int Value ) => new NumberLiteralCase( Value ); 
     public static Expr Binary( Expr Left, Token Operator, Expr Right ) => new BinaryCase( Left, Operator, Right ); 
@@ -49,16 +60,48 @@ public abstract record Expr {
 }
 
 
+public static class ListExtensions {
+
+    public static string ToDisplayString(this List<int?> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+
+
+    public static string ToDisplayString(this List<Expr> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+
+
+    public static string ToDisplayString(this List<Stmt> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+
+
+    public static string ToDisplayString(this List<string> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+}
+
 
 public abstract record Stmt{
 
     // concrete cases - names are internal implementation detail
-    public sealed record VarDeclarationCase( string Name, Expr Initializer ) : Stmt;
-    public sealed record ExpressionStmtCase( Expr Expression ) : Stmt;
-    public sealed record VarUpdateCase( string Name, Expr Value ) : Stmt;
-    public sealed record IfStmtCase( Expr Condition, List<Stmt> Body ) : Stmt;
-    public sealed record FunctionDeclarationCase( string Name, List<string> Parameters, List<Stmt> Body ) : Stmt;
-    public sealed record ReturnStmtCase( Expr Value ) : Stmt;
+    public sealed record VarDeclarationCase( string Name, Expr Initializer ) : Stmt {  
+        public override string ToString() => $"<S : Declare = {Name}, {Initializer}>";  
+    }
+    public sealed record ExpressionStmtCase( Expr Expression ) : Stmt {  
+        public override string ToString() => $"<S : Expr = {Expression}>";  
+    }
+    public sealed record VarUpdateCase( string Name, Expr Value ) : Stmt {  
+        public override string ToString() => $"<S : Update = {Name}, {Value}>";  
+    }
+    public sealed record IfStmtCase( Expr Condition, List<Stmt> Body ) : Stmt {  
+        public override string ToString() => $"<S : if = {Condition}, {Body}>";  
+    }
+    public sealed record FunctionDeclarationCase( string Name, 
+                                                  List<string> Parameters, 
+                                                  List<Stmt> Body ) : Stmt {  
+        public override string ToString() => $"<S : Function = {Name}, {Parameters}, {Body}>";  
+    }
+    public sealed record ReturnStmtCase( Expr Value ) : Stmt {  
+        public override string ToString() => $"<S : Return = {Value}>";  
+    }
 
     // factory methods - this is the API you actually call
     public static Stmt VarDeclaration( string name, Expr initializer ) => new VarDeclarationCase( name, initializer );

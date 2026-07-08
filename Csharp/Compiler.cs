@@ -172,6 +172,8 @@ public class Compiler( bool shouldLog_ = true ) {
                 pendingFunctionCalls.Add( fc );
                 instructions.Add( new Instruction.CallFunction( 999, 999 ) ); 
             }
+        }else{
+            throw new InvalidOperationException( $"BONK" );
         }
     }
 
@@ -236,6 +238,8 @@ public class Compiler( bool shouldLog_ = true ) {
             }
             Emit( stmtRT.Value, instructions, context );
             instructions.Add( new Instruction.Return() );
+        }else{
+            throw new InvalidOperationException( $"BONK" );
         }
     }   
 

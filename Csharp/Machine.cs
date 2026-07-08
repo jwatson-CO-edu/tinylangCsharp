@@ -1,14 +1,15 @@
 namespace tlCsharp{
 
+
 public class Machine {
 
     protected List<int?> /**/ stack     = [];
     protected List<CallFrame> callStack = [];
 
-    protected Instruction? instruction /*------*/ = null;
-    protected List<int?>   activeLocals /*-----*/ = [];
-    protected int? /*---*/ nextInstructionPointer = null;
-    protected List<int?>   restoreLocals /*----*/ = [];
+    // protected Instruction? instruction /*------*/ = null;
+    // protected List<int?>   activeLocals /*-----*/ = [];
+    // protected int? /*---*/ nextInstructionPointer = null;
+    // protected List<int?>   restoreLocals /*----*/ = [];
 
 
     /// <summary>
@@ -29,6 +30,8 @@ public class Machine {
         if( slot != null ){
             while ( activeLocals.Count <= slot ){  activeLocals.Add( null );  }
             activeLocals[ (int) slot ] = value;
+        }else{
+            throw new InvalidOperationException( $"CANNOT STORE AT `null`" );
         }
     }
 
@@ -39,6 +42,9 @@ public class Machine {
     protected static int? LoadLocal( List<int?> activeLocals, int? slot ) {
         // if( slot == null ){ return null; }
         // slot ??= 0;
+
+        Console.WriteLine( $"Load {slot} from {activeLocals}" );
+
         if( (slot == null) || (slot >= activeLocals.Count) || (activeLocals[ (int) slot ] == null) ){
             throw new InvalidOperationException( $"Undefined local slot {slot}" );
         }
@@ -71,6 +77,9 @@ public class Machine {
     protected int? Execute( Instruction instruction, List<int?> activeLocals,
                             int? nextInstructionPointer, Action<List<int?>> restoreLocals ) 
     {
+
+        Console.WriteLine( $"Execute {instruction} on {activeLocals.ToDisplayString()}" );
+
         if( instruction is Instruction.PushInt insVal ){
             stack.Add( insVal.Value );
         }else if( instruction is Instruction.Add ){
@@ -121,6 +130,8 @@ public class Machine {
             callStack.RemoveAt( callStack.Count-1 );
             restoreLocals( frame.locals );
             return frame.returnAddress;
+        }else{
+            throw new InvalidOperationException( $"BONK" );
         }
         return null;
     }
@@ -132,11 +143,13 @@ public class Machine {
     public List<int?> Run( List<Instruction> instructions ){
         stack.Clear();
         callStack.Clear();
-        List<int?> activeLocals = [];
-        int? instructionPointer = 0;
-        int? nextInstructionPointer = null;
+        List<int?> activeLocals /*-----*/ = [];
+        int? /*-*/ instructionPointer     = 0;
+        int? /*-*/ nextInstructionPointer = null;
 
         while( instructionPointer < instructions.Count ){
+
+            Console.WriteLine( $"Instruction Pointer: {instructionPointer}" );
 
              nextInstructionPointer = Execute(
                 instructions[(int)instructionPointer],
@@ -145,8 +158,8 @@ public class Machine {
                 restoredLocals => { activeLocals = restoredLocals; }
             );
             instructionPointer = nextInstructionPointer ?? instructionPointer + 1;
-            Console.WriteLine( $"\nNext Instruction Pointer: {nextInstructionPointer}" );
-            Console.WriteLine( $"Instruction Pointer: ____ {instructionPointer}" );
+            // Console.WriteLine( $"\nNext Instruction Pointer: {nextInstructionPointer}" );
+            // Console.WriteLine( $"Instruction Pointer: ____ {instructionPointer}" );
         }
         return [.. stack];
     }
