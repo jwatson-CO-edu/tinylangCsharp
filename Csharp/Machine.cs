@@ -43,7 +43,7 @@ public class Machine {
         // if( slot == null ){ return null; }
         // slot ??= 0;
 
-        Console.WriteLine( $"Load {slot} from {activeLocals}" );
+        Console.WriteLine( $"Load {slot} from {activeLocals.ToDisplayString()}" );
 
         if( (slot == null) || (slot >= activeLocals.Count) || (activeLocals[ (int) slot ] == null) ){
             throw new InvalidOperationException( $"Undefined local slot {slot}" );
