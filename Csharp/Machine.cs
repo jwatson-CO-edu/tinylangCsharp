@@ -149,7 +149,7 @@ public class Machine {
 
         while( instructionPointer < instructions.Count ){
 
-            Console.WriteLine( $"Instruction Pointer: {instructionPointer}" );
+            Console.WriteLine( $"\nInstruction Pointer: {instructionPointer}" );
 
              nextInstructionPointer = Execute(
                 instructions[(int)instructionPointer],
