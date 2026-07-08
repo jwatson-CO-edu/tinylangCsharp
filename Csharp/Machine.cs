@@ -16,7 +16,7 @@ public class Machine {
     /// </summary>
     protected int? Pop() {
         if( stack.Count == 0 ){  throw new InvalidOperationException( "Stack underflow" );  }
-        int? rtn = stack[~1];
+        int? rtn = stack[^1];
         stack.RemoveAt( stack.Count-1 );
         return rtn;
     }
@@ -25,9 +25,11 @@ public class Machine {
     /// <summary>
     /// Expand local vars to the given slot (if needed), then store in that slot
     /// </summary>
-    protected static void StoreLocal( List<int?> activeLocals, int slot, int? value ) {
-        while ( activeLocals.Count <= slot ){  activeLocals.Add(0);  }
-        activeLocals[slot] = value;
+    protected static void StoreLocal( List<int?> activeLocals, int? slot, int? value ) {
+        if( slot != null ){
+            while ( activeLocals.Count <= slot ){  activeLocals.Add(0);  }
+            activeLocals[ (int) slot ] = value;
+        }
     }
 
 
@@ -67,7 +69,7 @@ public class Machine {
     /// (protected) Execute program as a list of instructions
     /// </summary>
     protected int? Execute( Instruction instruction, List<int?> activeLocals,
-                            int nextInstructionPointer, Action<List<int?>> restoreLocals ) 
+                            int? nextInstructionPointer, Action<List<int?>> restoreLocals ) 
     {
         if( instruction is Instruction.PushInt insVal ){
             stack.Add( insVal.Value );
@@ -120,7 +122,7 @@ public class Machine {
             restoreLocals( frame.locals );
             return frame.returnAddress;
         }
-        return 0;
+        return null;
     }
 
 
@@ -131,16 +133,19 @@ public class Machine {
         stack.Clear();
         callStack.Clear();
         List<int?> activeLocals = [];
-        int instructionPointer = 0;
+        int? instructionPointer = 0;
 
         while (instructionPointer < instructions.Count) {
+
+
             int? nextInstructionPointer = Execute(
-                instructions[instructionPointer],
+                instructions[(int)instructionPointer],
                 activeLocals,
                 instructionPointer + 1,
                 restoredLocals => { activeLocals = restoredLocals; }
             );
             instructionPointer = nextInstructionPointer ?? instructionPointer + 1;
+            Console.WriteLine( $"Instruction Pointer: {instructionPointer}" );
         }
         return [.. stack];
     }

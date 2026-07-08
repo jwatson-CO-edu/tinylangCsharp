@@ -87,7 +87,7 @@ public abstract record Instruction {
     public sealed record GreaterThan : Instruction {  public override string ToString() => "GreaterThan";  }
 
     public sealed record LoadLocal( int? Slot ) : Instruction;
-    public sealed record StoreLocal( int Slot ) : Instruction;
+    public sealed record StoreLocal( int? Slot ) : Instruction;
     public sealed record JumpIfFalse( int? Target ) : Instruction;
     public sealed record Jump( int? Target ) : Instruction;
     public sealed record CallFunction( int? Address, int Arity ) : Instruction;

@@ -7,8 +7,8 @@ public class Compiler( bool shouldLog_ = true ) {
     /// Local lookup of named address slots, Can be a function body
     /// </summary>
     protected struct LocalContext{
-        public Dictionary<string,int> locals;
-        public int /*--------------*/ nextLocalSlot;
+        public Dictionary<string,int?> locals;
+        public int? /*--------------*/ nextLocalSlot;
         public bool /*-------------*/ isFunctionBody;
 
         public LocalContext(){  locals = [];  nextLocalSlot = 0;  isFunctionBody = false;  }
@@ -16,8 +16,8 @@ public class Compiler( bool shouldLog_ = true ) {
         /// <summary>
         /// Return the currently avaialble slot number and increment slot number
         /// </summary>
-        public int GetNextSlot(){
-            int rtn = nextLocalSlot;
+        public int? GetNextSlot(){
+            int? rtn = nextLocalSlot;
             nextLocalSlot += 1;
             return rtn;
         }
@@ -125,12 +125,16 @@ public class Compiler( bool shouldLog_ = true ) {
             Log( $"[{logId}] Recursing on the right side" );
             Emit( exprBN.Right, instructions, context );
             
-            Log("[$logId] Now adding binary operator ${instructionForOperator(expr.operator)}");
+            Log( $"[{logId}] Now adding binary operator instructionForOperator({exprBN.Operator})");
             instructions.Add( InstructionForOperator( exprBN.Operator ) );
         
         // Variable Value: Load the value at the given slot
         }else if( expr is Expr.VariableCase exprVR ){
+
             int? slot = context.locals[ exprVR.Name ];
+
+            Log( $"[{logId}] Fetch variable {exprVR.Name} from local context at slot {slot}" );
+
             if( slot == null ){
                 throw new InvalidOperationException( $"Referencing undefined variable ${exprVR.Name}" );
             }
@@ -182,15 +186,15 @@ public class Compiler( bool shouldLog_ = true ) {
             Log( "WARNING: I DON'T KNOW WHAT THIS DOES" );
             Emit( stmtVD.Initializer, instructions, context ); // WARNING: I DON'T KNOW WHAT THIS DOES
             
-            int slot = context.GetNextSlot();
+            int? slot = context.GetNextSlot();
             context.locals[ stmtVD.Name ] = slot;
             instructions.Add( new Instruction.StoreLocal( slot ) );
 
         // Variable Update: Store a value in an existing named slot
         }else if( stmt is Stmt.VarUpdateCase stmtVU ){
-            int slot = context.locals[ stmtVU.Name ];
-            if( slot == 0 ){
-                throw new InvalidOperationException( $"Failed to update a variable with ${stmtVU.Name} as name before declaration" );
+            int? slot = context.locals[ stmtVU.Name ];
+            if( slot == null ){
+                throw new InvalidOperationException( $"Failed to update a variable with {stmtVU.Name} as name before declaration" );
             }
             Emit( stmtVU.Value, instructions, context );
             instructions.Add( new Instruction.StoreLocal( slot ) );
@@ -237,10 +241,9 @@ public class Compiler( bool shouldLog_ = true ) {
         LocalContext functionContext = new(){  isFunctionBody = true  };
 
         foreach( string parameter in stmt.Parameters ){
-            if( !functionContext.locals.TryGetValue( parameter, out int _ ) )
+            if( !functionContext.locals.TryGetValue( parameter, out int? _ ) )
                 throw new InvalidOperationException( "Duplicate param defeinition" );
-            int slot = functionContext.nextLocalSlot;
-            functionContext.nextLocalSlot += 1;
+            int? slot = functionContext.GetNextSlot();
             functionContext.locals[ parameter ] = slot;
         }
 

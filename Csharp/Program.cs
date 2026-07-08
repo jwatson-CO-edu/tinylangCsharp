@@ -5,12 +5,16 @@ using tlCsharp;
 Console.WriteLine( "Hello, World!" );
 
 
-string source = "6 + (4*2)/5 - 3*(4+(4*4 +5))";
-// string source = "+++++";
-// string source = "1+2+3+4";
+// string source = "6 + (4*2)/5 - 3*(4+(4*4 +5))";
+// string source = "6 + (4*2)/5 - 3*(4+(4*4 +5));";
+// string source = "+++++;";
+// string source = "1+2+3+4;";
 // string source = "let x = 5*2; update x to x * 2; update x to x + 1; x;";
-// string source = "let x = 9; if (x < 5) { update x to x + 10; let y = 5; }; x+y;";
 
+// WARNING: WRONG
+string source = "let x = 9; if (x < 5) { update x to x + 10; let y = 5; }; x+y;";
+
+// WARNING: WRONG
 // string source = """
 // fun bump(n) {
 //     let x = n + 1;
@@ -35,12 +39,12 @@ Lexer /*-*/ lexer  = new(source);
 List<Token> tokens = lexer.ScanTokens();
 foreach( Token token in tokens ){  Console.WriteLine( token );  }
 
-Parser     parser  = new( tokens, shouldLog_ : false );
+Parser     parser  = new( tokens, shouldLog_ : true );
 List<Stmt> program = parser.Parse();
 
 foreach( Stmt currStatement in program ){  Helpers.PrettyPrint( currStatement, 0 );  }
 
-Compiler compiler = new( shouldLog_ : false );
+Compiler compiler = new( shouldLog_ : true );
 
 CompileResult result = compiler.Compile( program );
 Console.WriteLine( "=========" );
@@ -55,7 +59,8 @@ Machine machine = new();
 List<int?> finalStack = machine.Run( result.Instructions );
 
 Console.WriteLine("=========");
-Console.WriteLine( $"Final stack = {finalStack}");
+Console.WriteLine( $"Final stack = ");
+foreach( int? val in finalStack ){  Console.WriteLine( val );  }
 
 
 
