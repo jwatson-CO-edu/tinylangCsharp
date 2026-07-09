@@ -11,10 +11,11 @@ C# translation of the compiler presented by [Milen Patel](https://www.youtube.co
 
 ## `./FuSCoL` : Fun-Size Computer Language
 Extension of the C# translation.
-- Print?
 - More math operators?
 - Loops?
 - Types?
+- Print?
+- Arrays?
 - Structs?
 - REPL?
 - Better VM? (Faster? (C++ ?))

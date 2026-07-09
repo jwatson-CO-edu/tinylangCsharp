@@ -29,9 +29,12 @@ public enum TokenType {
     FUN,
     COMMA,
     RETURN,
-    INVOKE
+    INVOKE,
     ///// FuSCoL /////////////////////////////////
-
+    /// Math ///
+    DBBL_STAR,
+    /// Loops ///
+    FOR,
 }
 
 
