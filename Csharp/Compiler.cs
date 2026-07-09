@@ -6,6 +6,7 @@ public class Compiler( bool shouldLog_ = true ) {
     /// <summary>
     /// Local lookup of named address slots, Can be a function body
     /// </summary>
+    // ALERT: In C#, STRUCTS ARE PASS BY VALUE, CLASSES ARE PASS BY REFERENCE!
     protected class LocalContext{
         public Dictionary<string,int?> locals;
         public int? /*--------------*/ nextLocalSlot;
@@ -27,6 +28,7 @@ public class Compiler( bool shouldLog_ = true ) {
     /// <summary>
     /// List of named parameters and the address of a stack frame
     /// </summary>
+    // ALERT: In C#, STRUCTS ARE PASS BY VALUE, CLASSES ARE PASS BY REFERENCE!
     protected class FunctionSignature{
         public List<string> parameters;
         public int? /*---*/ address;
@@ -38,6 +40,7 @@ public class Compiler( bool shouldLog_ = true ) {
     /// <summary>
     /// Function name, Instruction index, and number of args
     /// </summary>
+    // ALERT: In C#, STRUCTS ARE PASS BY VALUE, CLASSES ARE PASS BY REFERENCE!
     protected class PendingFunctionCall{
         public string name = "";
         public int    instructionIndex; 
@@ -46,7 +49,7 @@ public class Compiler( bool shouldLog_ = true ) {
 
     
     protected bool /*---------------------------*/ shouldLog /*------*/ = shouldLog_;
-    protected Dictionary<string,FunctionSignature> functionSignatures   = [];
+    protected Dictionary<string,FunctionSignature?> functionSignatures   = [];
     protected List<PendingFunctionCall> /*------*/ pendingFunctionCalls = [];
     protected int /*----------------------------*/ nextUniqueNumber     = 1;
 
@@ -78,8 +81,9 @@ public class Compiler( bool shouldLog_ = true ) {
     /// </summary>
     protected void PatchFunctionCalls( List<Instruction> instructions ) {   
         foreach( PendingFunctionCall pendingCall in pendingFunctionCalls ){
-            if( !functionSignatures.TryGetValue( pendingCall.name, out FunctionSignature signature ) )
+            if( !functionSignatures.TryGetValue( pendingCall.name, out FunctionSignature? signature ) )
                 throw new InvalidOperationException( "Unreachable" );
+            if( signature == null ){  throw new InvalidOperationException( "NULL: Unreachable" );  }
             instructions[ pendingCall.instructionIndex ] = new Instruction.CallFunction( signature.address, pendingCall.arity );
         }
     }
@@ -89,8 +93,9 @@ public class Compiler( bool shouldLog_ = true ) {
     /// Assign `address` to function `name`
     /// </summary>
     protected void SetFunctionAddress( string name, int address ) {
-        if( !functionSignatures.TryGetValue( name, out FunctionSignature signature ) )
-                throw new InvalidOperationException( "shouldnt be possible" );
+        if( !functionSignatures.TryGetValue( name, out FunctionSignature? signature ) )
+            throw new InvalidOperationException( "shouldnt be possible" );
+        if( signature == null ){  throw new InvalidOperationException( "NULL: shouldnt be possible" );  }
         signature.address = address;
     }
 
@@ -150,9 +155,9 @@ public class Compiler( bool shouldLog_ = true ) {
         // Function Call: 
         }else if( expr is Expr.FunctionCallCase exprFC ){
 
-            if (!functionSignatures.TryGetValue( exprFC.Name, out FunctionSignature signature))
+            if (!functionSignatures.TryGetValue( exprFC.Name, out FunctionSignature? signature))
                 throw new InvalidOperationException( "Calling unknown function" );
-
+            if( signature == null ){  throw new InvalidOperationException( "NULL: Calling unknown function" );  }
             if( signature.parameters.Count != exprFC.Arguments.Count ){
                 throw new InvalidOperationException( "Function expected a different number of args than it received" );
             }
@@ -192,7 +197,7 @@ public class Compiler( bool shouldLog_ = true ) {
             if( context.locals.TryGetValue( stmtVD.Name, out _ ) )
                 throw new InvalidOperationException( $"Duplicate definition of variable detected ${stmtVD.Name}" );
             
-            Emit( stmtVD.Initializer, instructions, context ); // WARNING: I DON'T KNOW WHAT THIS DOES
+            Emit( stmtVD.Initializer, instructions, context );
             
             int? slot = context.GetNextSlot();
             Log( $"Declare Variable {stmtVD.Name} @ Slot {slot}" );
@@ -219,7 +224,6 @@ public class Compiler( bool shouldLog_ = true ) {
         * target jump location
         */
         }else if( stmt is Stmt.IfStmtCase stmtIF ){
-            Log( "WARNING: INSPECT CONDITIONAL INSTRUCTIONS CLOSELY" );
             Emit( stmtIF.Condition, instructions, context );
             int jumpInstructionIndex = instructions.Count;
             instructions.Add( new Instruction.JumpIfFalse( 999 ) );
@@ -268,7 +272,7 @@ public class Compiler( bool shouldLog_ = true ) {
 
     protected void RegisterSignature( Stmt.FunctionDeclarationCase stmt ) {
 
-        if( functionSignatures.TryGetValue( stmt.Name, out FunctionSignature _ ) )
+        if( functionSignatures.TryGetValue( stmt.Name, out FunctionSignature? _ ) )
             throw new InvalidOperationException( "Duplicate function declaration" );
 
         HashSet<string> seenParameters = [];
