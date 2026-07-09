@@ -6,7 +6,7 @@ public class Compiler( bool shouldLog_ = true ) {
     /// <summary>
     /// Local lookup of named address slots, Can be a function body
     /// </summary>
-    protected struct LocalContext{
+    protected class LocalContext{
         public Dictionary<string,int?> locals;
         public int? /*--------------*/ nextLocalSlot;
         public bool /*-------------*/ isFunctionBody;
@@ -27,7 +27,7 @@ public class Compiler( bool shouldLog_ = true ) {
     /// <summary>
     /// List of named parameters and the address of a stack frame
     /// </summary>
-    protected struct FunctionSignature{
+    protected class FunctionSignature{
         public List<string> parameters;
         public int? /*---*/ address;
 
@@ -38,8 +38,8 @@ public class Compiler( bool shouldLog_ = true ) {
     /// <summary>
     /// Function name, Instruction index, and number of args
     /// </summary>
-    protected struct PendingFunctionCall{
-        public string name;
+    protected class PendingFunctionCall{
+        public string name = "";
         public int    instructionIndex; 
         public int    arity;
     }
