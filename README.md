@@ -6,6 +6,8 @@ The original compiler presented by [Milen Patel](https://www.youtube.com/watch?v
 
 ## `./Csharp`
 C# translation of the compiler presented by [Milen Patel](https://www.youtube.com/watch?v=awsH0iq0O1A)
+- Docstrings
+- Detailed Logging
 
 ## `./FuSCoL` : Fun-Size Computer Language
 Extension of the C# translation.
