@@ -41,8 +41,8 @@ public class Compiler( bool shouldLog_ = true ) {
     /// Function name, Instruction index, and number of args
     /// </summary>
     // ALERT: In C#, STRUCTS ARE PASS BY VALUE, CLASSES ARE PASS BY REFERENCE!
-    protected class PendingFunctionCall{
-        public string name = "";
+    protected struct PendingFunctionCall{
+        public string name;
         public int    instructionIndex; 
         public int    arity;
     }
@@ -93,8 +93,16 @@ public class Compiler( bool shouldLog_ = true ) {
     /// Assign `address` to function `name`
     /// </summary>
     protected void SetFunctionAddress( string name, int address ) {
-        if( !functionSignatures.TryGetValue( name, out FunctionSignature? signature ) )
-            throw new InvalidOperationException( "shouldnt be possible" );
+        if( !functionSignatures.TryGetValue( name, out FunctionSignature? signature ) ){
+
+            Console.WriteLine( "Registered Functions:" );
+            foreach( string fName in functionSignatures.Keys ){
+                Console.WriteLine( $"\t{fName}" );
+            }
+
+            throw new InvalidOperationException( "Function not registered?" );
+        }
+            
         if( signature == null ){  throw new InvalidOperationException( "NULL: shouldnt be possible" );  }
         signature.address = address;
     }
@@ -252,7 +260,7 @@ public class Compiler( bool shouldLog_ = true ) {
     /// Store arguments in the local context, Add instructions in the function body
     /// </summary>
     protected void EmitFunctionDeclaration( Stmt.FunctionDeclarationCase stmt, List<Instruction> instructions ) {
-        if( stmt.Body[~1] is not Stmt.ReturnStmtCase ) {
+        if( stmt.Body[^1] is not Stmt.ReturnStmtCase ) {
             throw new InvalidOperationException( "Functions need to end with a return statement." );
         }
 
@@ -282,6 +290,11 @@ public class Compiler( bool shouldLog_ = true ) {
                 throw new InvalidOperationException( "Duplicate param definition in function" );
             }
         }
+
+        functionSignatures[ stmt.Name ] = new FunctionSignature(){
+            parameters = stmt.Parameters
+            // address left null/default here — that's set later by SetFunctionAddress
+        };
     }
 
 

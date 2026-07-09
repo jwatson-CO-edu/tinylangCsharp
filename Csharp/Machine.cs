@@ -125,7 +125,7 @@ public class Machine {
             return insCal.Address;    
         }else if( instruction is Instruction.Return ){
             if( callStack.Count == 0 ){  return null;  }
-            CallFrame frame = callStack[~1];
+            CallFrame frame = callStack[^1];
             callStack.RemoveAt( callStack.Count-1 );
             restoreLocals( frame.locals );
             return frame.returnAddress;

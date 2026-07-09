@@ -11,26 +11,24 @@ Console.WriteLine( "Hello, World!" );
 // string source = "1+2+3+4;";
 // string source = "let x = 5*2; update x to x * 2; update x to x + 1; x;";
 
-// WARNING: WRONG
-string source = "let x = 9; if (x < 5) { update x to x + 10; let y = 5; }; x+y;";
+// string source = "let x = 9; if (x < 5) { update x to x + 10; let y = 5; }; x+y;";
 
-// WARNING: WRONG
-// string source = """
-// fun bump(n) {
-//     let x = n + 1;
-//     if (x > 5) {
-//     update x to x * 2;
-//     };
-//     return x;
-// }
-// let a = invoke bump(5);
-// let b = invoke bump(a);  
-// update b to b + invoke bump(1);
-// if (b > 20) {
-//     update b to b - a;
-// };
-// b;
-// """;
+string source = """
+fun bump(n) {
+    let x = n + 1;
+    if (x > 5) {
+        update x to x * 2;
+    };
+    return x;
+}
+let a = invoke bump(5);
+let b = invoke bump(a);  
+update b to b + invoke bump(1);
+if (b > 20) {
+    update b to b - a;
+};
+b;
+""";
 
 Console.WriteLine("Source = $source");
 Console.WriteLine("====");
