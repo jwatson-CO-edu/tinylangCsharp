@@ -1,15 +1,13 @@
 namespace tlCsharp{
 
 
+/// <summary>
+/// Fake Computer
+/// </summary>
 public class Machine {
 
     protected List<int?> /**/ stack     = [];
     protected List<CallFrame> callStack = [];
-
-    // protected Instruction? instruction /*------*/ = null;
-    // protected List<int?>   activeLocals /*-----*/ = [];
-    // protected int? /*---*/ nextInstructionPointer = null;
-    // protected List<int?>   restoreLocals /*----*/ = [];
 
 
     /// <summary>
@@ -28,6 +26,7 @@ public class Machine {
     /// </summary>
     protected static void StoreLocal( List<int?> activeLocals, int? slot, int? value ) {
         if( slot != null ){
+            Console.WriteLine( $"About to create {slot-activeLocals.Count} slots!" );
             while ( activeLocals.Count <= slot ){  activeLocals.Add( null );  }
             activeLocals[ (int) slot ] = value;
         }else{
@@ -78,7 +77,7 @@ public class Machine {
                             int? nextInstructionPointer, Action<List<int?>> restoreLocals ) 
     {
 
-        Console.WriteLine( $"Execute {instruction} on {activeLocals.ToDisplayString()}" );
+        Console.WriteLine( $"Execute {instruction} on locals: {activeLocals.ToDisplayString()}" );
 
         if( instruction is Instruction.PushInt insVal ){
             stack.Add( insVal.Value );

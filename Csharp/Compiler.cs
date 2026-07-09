@@ -29,7 +29,7 @@ public class Compiler( bool shouldLog_ = true ) {
     /// </summary>
     protected struct FunctionSignature{
         public List<string> parameters;
-        public int? /*----*/ address;
+        public int? /*---*/ address;
 
         public FunctionSignature(){  parameters = [];  address = null;  }
     }
@@ -58,7 +58,7 @@ public class Compiler( bool shouldLog_ = true ) {
 
 
     /// <summary>
-    /// `Token` --to-> `Instruction` lookup
+    /// Binary operator `Token` --to-> `Instruction` lookup
     /// </summary>
     protected static Instruction InstructionForOperator( Token op ) {
         return op.type switch{ // `swtich` EXPRESSION, NOT statement
