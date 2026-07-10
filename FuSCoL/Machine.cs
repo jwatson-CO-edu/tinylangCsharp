@@ -1,3 +1,4 @@
+
 namespace fuscol{
 
 
@@ -97,6 +98,17 @@ public class Machine {
             int? right = Pop();
             int? left  = Pop();
             stack.Add( left / right );
+        }else if( instruction is Instruction.Exp ){
+            int? right = Pop();
+            int? left  = Pop();
+            int  r     = right ?? 0;
+            int  l     = left  ?? 0;
+            if( (right is not null) & (left is not null) ){
+                stack.Add( (int) Math.Pow( l, r ) );
+            }else{
+                Console.WriteLine( $"One of the operands is NULL: {left} ** {right}" );
+                stack.Add( null );
+            }
         }else if( instruction is Instruction.LessThan ){
             int? right = Pop();
             int? left  = Pop();

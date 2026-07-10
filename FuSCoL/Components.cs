@@ -145,6 +145,7 @@ public abstract record Instruction {
     public sealed record Sub /*---*/ : Instruction {  public override string ToString() => "Sub";  }
     public sealed record Mul /*---*/ : Instruction {  public override string ToString() => "Mul";  }
     public sealed record Div /*---*/ : Instruction {  public override string ToString() => "Div";  }
+    public sealed record Exp /*---*/ : Instruction {  public override string ToString() => "Exp";  }
     public sealed record LessThan    : Instruction {  public override string ToString() => "LessThan";  }
     public sealed record GreaterThan : Instruction {  public override string ToString() => "GreaterThan";  }
 

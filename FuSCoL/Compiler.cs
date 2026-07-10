@@ -69,6 +69,7 @@ public class Compiler( bool shouldLog_ = true ) {
             TokenType.MINUS /*--*/ => new Instruction.Sub(),
             TokenType.STAR /*---*/ => new Instruction.Mul(),
             TokenType.SLASH /*--*/ => new Instruction.Div(),
+            TokenType.DBBL_STAR    => new Instruction.Exp(),
             TokenType.LESS_THAN    => new Instruction.LessThan(),
             TokenType.GREATER_THAN => new Instruction.GreaterThan(),
             _ /*----------------*/ => throw new InvalidOperationException( $"Invalid operator {op}" )
