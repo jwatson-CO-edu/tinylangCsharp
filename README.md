@@ -5,7 +5,7 @@ A toy micro-language plus compiler for a simulated processor.
 The original compiler presented by [Milen Patel](https://www.youtube.com/watch?v=awsH0iq0O1A)
 
 ## `./Csharp`
-C# translation of the compiler presented by [Milen Patel](https://www.youtube.com/watch?v=awsH0iq0O1A)
+C# translation of the `tinylang` compiler presented by [Milen Patel](https://github.com/milen-patel/tinylang)
 - Docstrings
 - Detailed Logging
 
