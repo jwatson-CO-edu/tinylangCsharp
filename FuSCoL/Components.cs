@@ -32,7 +32,11 @@ public enum TokenType {
     INVOKE,
     ///// FuSCoL /////////////////////////////////
     /// Math ///
+    // Binary //
     DBBL_STAR,
+    // Unary //
+    DBBL_PLUS,
+    DBBL_MINUS,
     /// Loops ///
     FOR,
 }
