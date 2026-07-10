@@ -118,16 +118,33 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
 
 
     /// <summary>
+    /// Parse power
+    /// </summary>
+    protected Expr ParseExponent() {
+        Log( "ParseExponent() called, will start by calling parseFactor()" );
+        Expr workingExpression = ParseFactor();
+        Log( "ParseExponent() done parsing term, now checking for * / Term" );
+        while( Match( TokenType.DBBL_STAR ) ){
+            Log( "ParseExponent() found a ${previous()}, will parse term again" );
+            Token Operator = Previous();
+            Expr parsedFactor = ParseFactor();
+            workingExpression = Expr.Binary( workingExpression, Operator, parsedFactor );
+        }
+        return workingExpression;
+    }
+
+
+    /// <summary>
     /// Parse multiplication or division
     /// </summary>
     protected Expr ParseMultDiv() {
         Log( "ParseMultDiv() called, will start by calling parseFactor()" );
-        Expr workingExpression = ParseFactor();
+        Expr workingExpression = ParseExponent();
         Log( "ParseMultDiv() done parsing term, now checking for * / Term" );
         while( Match( TokenType.STAR, TokenType.SLASH ) ){
             Log( "ParseMultDiv() found a ${previous()}, will parse term again" );
             Token Operator = Previous();
-            Expr parsedFactor = ParseFactor();
+            Expr parsedFactor = ParseExponent();
             workingExpression = Expr.Binary( workingExpression, Operator, parsedFactor );
         }
         return workingExpression;

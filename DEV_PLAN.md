@@ -4,6 +4,8 @@
 - [Y] Double-Minus Operator 
 - [Y] Double-Star Operator 
 - [Y] Double-Slash Operator 
+- [Y] Double-Equals Operator 
+- [Y] `for` Keyword 
 ## Parser
 - [ ] Power Operation
 ### Unary Operations

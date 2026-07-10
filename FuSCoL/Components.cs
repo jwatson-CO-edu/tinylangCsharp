@@ -39,6 +39,8 @@ public enum TokenType {
     DBBL_MINUS,
     /// Loops ///
     FOR,
+    /// Comparison / Conditional ///
+    DBBL_EQUAL,
     /// Comments ///
     DBBL_SLASH,
 }

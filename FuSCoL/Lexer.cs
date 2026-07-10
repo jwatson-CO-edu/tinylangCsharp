@@ -68,7 +68,9 @@ public class Lexer( string input_ ) {
         }else if( literal == "update" ){
             tokens.Add( new Token( TokenType.UPDATE ) );
         }else if( literal == "to" ){
-            tokens.Add( new Token(TokenType.TO ) );
+            tokens.Add( new Token( TokenType.TO ) );
+        }else if( literal == "for" ){
+            tokens.Add( new Token( TokenType.FOR ) );
         }else{
             tokens.Add( new Token( TokenType.IDENTIFIER, literal ) );
         }
@@ -113,7 +115,9 @@ public class Lexer( string input_ ) {
                     tokens.Add( new Token( TokenType.CLOSE_BRACE ) );
                     break;
                 case '=':
-                    tokens.Add( new Token( TokenType.EQUAL ) );
+                    if( !ScanDbbl( currentCharacter, TokenType.DBBL_EQUAL ) ){
+                        tokens.Add( new Token( TokenType.EQUAL ) );
+                    }
                     break;
                 case ';':
                     tokens.Add( new Token( TokenType.SEMICOLON ) );
