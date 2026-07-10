@@ -13,6 +13,7 @@ C# translation of the compiler presented by [Milen Patel](https://www.youtube.co
 Extension of the C# translation.
 - More math operators?
 - Loops?
+- Comments?
 - Types?
 - Print?
 - Arrays?

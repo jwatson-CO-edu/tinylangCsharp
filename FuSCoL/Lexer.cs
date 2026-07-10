@@ -76,6 +76,20 @@ public class Lexer( string input_ ) {
 
 
     /// <summary>
+    /// Read in a token of 2 repeated chars
+    /// </summary>
+    protected bool ScanDbbl( char chr, TokenType tknDbbl ) {
+        int startingPosition = currentPosition - 1;
+        if( Peek() == chr ){  
+            Advance();
+            tokens.Add( new Token( tknDbbl, input[ startingPosition .. currentPosition ] ) );
+            return true;  
+        }
+        return false;
+    }
+
+
+    /// <summary>
     /// Read in one token of any type 
     /// </summary>
     protected void ScanNextToken() {
@@ -111,16 +125,24 @@ public class Lexer( string input_ ) {
                     tokens.Add( new Token( TokenType.CLOSE_PARENTHESIS ) );
                     break;
                 case '+':
-                    tokens.Add( new Token( TokenType.PLUS ) );
+                    if( !ScanDbbl( currentCharacter, TokenType.DBBL_PLUS ) ){
+                        tokens.Add( new Token( TokenType.PLUS ) );
+                    }
                     break;
                 case '-':
-                    tokens.Add( new Token( TokenType.MINUS ) );
+                    if( !ScanDbbl( currentCharacter, TokenType.DBBL_MINUS ) ){
+                        tokens.Add( new Token( TokenType.MINUS ) );
+                    }
                     break;
                 case '*':
-                    tokens.Add( new Token( TokenType.STAR ) );
+                    if( !ScanDbbl( currentCharacter, TokenType.DBBL_STAR ) ){
+                        tokens.Add( new Token( TokenType.STAR ) );
+                    }
                     break;
                 case '/':
-                    tokens.Add( new Token( TokenType.SLASH ) );
+                    if( !ScanDbbl( currentCharacter, TokenType.DBBL_SLASH ) ){
+                        tokens.Add( new Token( TokenType.SLASH ) );
+                    }
                     break;
                 case '>':
                     tokens.Add( new Token( TokenType.GREATER_THAN ) );
