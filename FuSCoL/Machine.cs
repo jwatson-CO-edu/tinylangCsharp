@@ -5,14 +5,21 @@ namespace fuscol{
 /// <summary>
 /// Fake Computer
 /// </summary>
-public class Machine {
+public class Machine( bool shouldLog_ = true ) {
 
+    protected bool /*------*/ shouldLog = shouldLog_;
     protected List<int?> /**/ stack     = [];
     protected List<CallFrame> callStack = [];
 
 
     /// <summary>
-    /// Pop an value from the top of the stack
+    /// Condtionally print a `stmt` 
+    /// </summary>
+    public void Log( string stmt ) {  if( shouldLog ){  Console.WriteLine( stmt );  }  }
+
+
+    /// <summary>
+    /// Pop a value from the top of the stack
     /// </summary>
     protected int? Pop() {
         if( stack.Count == 0 ){  throw new InvalidOperationException( "Stack underflow" );  }
@@ -40,8 +47,6 @@ public class Machine {
     /// Fetch a value from the specified slot
     /// </summary>
     protected static int? LoadLocal( List<int?> activeLocals, int? slot ) {
-        // if( slot == null ){ return null; }
-        // slot ??= 0;
 
         Console.WriteLine( $"Load {slot} from {activeLocals.ToDisplayString()}" );
 
