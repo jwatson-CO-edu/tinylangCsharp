@@ -1,7 +1,13 @@
 namespace fuscol{
 
+/// <summary>
+/// Functions supporting the FuSCoL interpreter  
+/// </summary>
 public static class Helpers {
 
+    /// <summary>
+    /// Recurively print an expression, with indents  
+    /// </summary>
     public static void PrettyPrint( Expr expr, int indent ) {
 
         string padding = string.Concat( Enumerable.Repeat( "    ", indent ) );
@@ -24,6 +30,9 @@ public static class Helpers {
     }
 
 
+    /// <summary>
+    /// Recurively print a statement, with indents  
+    /// </summary>
     public static void PrettyPrint( Stmt stmt, int indent ) { 
         string padding = string.Concat( Enumerable.Repeat( "    ", indent ) );
         if( stmt is Stmt.VarDeclarationCase stmtVar ){

@@ -1,7 +1,14 @@
 namespace fuscol{
 
+/// <summary>
+/// Fun-Size Computer Language Interpreter
+/// </summary>
 public class FuSCoL {
 
+
+    /// <summary>
+    /// Compile the `source`, Run program, and Display stack state
+    /// </summary>
     public static void RunProgSource( string source, bool shouldLog = true ){
         Lexer /*-*/ lexer  = new(source);
         List<Token> tokens = lexer.ScanTokens();
@@ -26,8 +33,8 @@ public class FuSCoL {
         Machine    machine    = new();
         List<int?> finalStack = machine.Run( result.Instructions );
 
-        if( shouldLog ){  Console.WriteLine("=========");  }
-        Console.WriteLine( $"Final stack = ");
+        if( shouldLog ){  Console.WriteLine( "=========" );  }
+        Console.WriteLine( $"Final stack = " );
         foreach( int? val in finalStack ){  Console.WriteLine( val );  }
     }
 
