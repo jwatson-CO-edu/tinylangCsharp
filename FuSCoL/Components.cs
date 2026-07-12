@@ -104,20 +104,29 @@ public abstract record Stmt{
     public sealed record VarDeclarationCase( string Name, Expr Initializer ) : Stmt {  
         public override string ToString() => $"<S : Declare = {Name}, {Initializer}>";  
     }
+
     public sealed record ExpressionStmtCase( Expr Expression ) : Stmt {  
         public override string ToString() => $"<S : Expr = {Expression}>";  
     }
+
     public sealed record VarUpdateCase( string Name, Expr Value ) : Stmt {  
         public override string ToString() => $"<S : Update = {Name}, {Value}>";  
     }
+
     public sealed record IfStmtCase( Expr Condition, List<Stmt> Body ) : Stmt {  
         public override string ToString() => $"<S : if = {Condition}, {Body}>";  
     }
+
     public sealed record FunctionDeclarationCase( string Name, 
                                                   List<string> Parameters, 
                                                   List<Stmt> Body ) : Stmt {  
         public override string ToString() => $"<S : Function = {Name}, {Parameters}, {Body}>";  
     }
+
+    public sealed record ForLoopCase( List<Stmt> Counter, List<Stmt> Body ) : Stmt {  
+        public override string ToString() => $"<S : For = {Counter}, {Body}>";  
+    }
+
     public sealed record ReturnStmtCase( Expr Value ) : Stmt {  
         public override string ToString() => $"<S : Return = {Value}>";  
     }
@@ -129,6 +138,7 @@ public abstract record Stmt{
     public static Stmt IfStmt( Expr condition, List<Stmt> body ) => new IfStmtCase( condition, body );
     public static Stmt FunctionDeclaration( string name, List<string> parameters, List<Stmt> body ) => 
         new FunctionDeclarationCase( name, parameters, body );
+    public static Stmt ForLoop( List<Stmt> counter, List<Stmt> body ) => new ForLoopCase( counter, body );
     public static Stmt ReturnStmt( Expr value ) => new ReturnStmtCase( value );
 }
 

@@ -244,6 +244,26 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
 
 
     /// <summary>
+    /// Parse a `for` loop
+    /// </summary>
+    protected Stmt ParseForLoop() {
+
+        Consume( TokenType.OPEN_PARENTHESIS, "Expected ( after if" );
+        Stmt init = ParseStatement();
+        Stmt test = ParseStatement();
+        Stmt incr = ParseStatement();
+        Consume( TokenType.CLOSE_PARENTHESIS, "Expected ) after if" );
+        List<Stmt> counter = [init, test, incr,]; 
+        Consume( TokenType.OPEN_BRACE, "Expected { after )" );
+        List<Stmt> body = [];
+        while( !Check( TokenType.CLOSE_BRACE ) && !IsAtEnd() ){  body.Add( ParseStatement() );  }
+        Consume( TokenType.CLOSE_BRACE, "Expected } to end if statement body" );
+        Consume( TokenType.SEMICOLON, "Expected ; to end if statement" );
+        return Stmt.ForLoop( counter, body );
+    }
+
+
+    /// <summary>
     /// Parse a statement
     /// </summary>
     protected Stmt ParseStatement() {
@@ -251,6 +271,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
         if( Match( TokenType.LET    ) ){  return ParseVarDeclaration();   }
         if( Match( TokenType.UPDATE ) ){  return ParseVarUpdate(); /*--*/ }
         if( Match( TokenType.IF     ) ){  return ParseIfStatement(); /**/ }
+        if( Match( TokenType.FOR    ) ){  return ParseForLoop(); /*----*/ }
         return ParseExpressionStatment();
     }
 

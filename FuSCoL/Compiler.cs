@@ -10,9 +10,10 @@ public class Compiler( bool shouldLog_ = true ) {
     protected class LocalContext{
         public Dictionary<string,int?> locals;
         public int? /*--------------*/ nextLocalSlot;
-        public bool /*-------------*/ isFunctionBody;
+        public bool /*--------------*/ isFunctionBody;
+        public bool /*--------------*/ isForBody;
 
-        public LocalContext(){  locals = [];  nextLocalSlot = 0;  isFunctionBody = false;  }
+        public LocalContext(){  locals = [];  nextLocalSlot = 0;  isFunctionBody = false;  isForBody = false;  }
 
         /// <summary>
         /// Return the currently avaialble slot number and increment slot number
@@ -36,6 +37,7 @@ public class Compiler( bool shouldLog_ = true ) {
         public FunctionSignature(){  parameters = [];  address = null;  }
     }
 
+    // FIXME: FOR LOOP IS ANONYMOUS STACK FRAME ??? NO SIGNATURE ???
 
     /// <summary>
     /// Function name, Instruction index, and number of args
@@ -48,10 +50,10 @@ public class Compiler( bool shouldLog_ = true ) {
     }
 
     
-    protected bool /*---------------------------*/ shouldLog /*------*/ = shouldLog_;
+    protected bool /*----------------------------*/ shouldLog /*------*/ = shouldLog_;
     protected Dictionary<string,FunctionSignature?> functionSignatures   = [];
-    protected List<PendingFunctionCall> /*------*/ pendingFunctionCalls = [];
-    protected int /*----------------------------*/ nextUniqueNumber     = 1;
+    protected List<PendingFunctionCall> /*-------*/ pendingFunctionCalls = [];
+    protected int /*-----------------------------*/ nextUniqueNumber     = 1;
 
 
     /// <summary>
@@ -95,15 +97,12 @@ public class Compiler( bool shouldLog_ = true ) {
     /// </summary>
     protected void SetFunctionAddress( string name, int address ) {
         if( !functionSignatures.TryGetValue( name, out FunctionSignature? signature ) ){
-
             Console.WriteLine( "Registered Functions:" );
             foreach( string fName in functionSignatures.Keys ){
                 Console.WriteLine( $"\t{fName}" );
             }
-
             throw new InvalidOperationException( "Function not registered?" );
         }
-            
         if( signature == null ){  throw new InvalidOperationException( "NULL: shouldnt be possible" );  }
         signature.address = address;
     }

@@ -7,11 +7,13 @@
 - [Y] Double-Equals Operator 
 - [Y] `for` Keyword 
 ## Parser
-- [ ] Power Operation
+- [Y] Power Operation
 ### Unary Operations
 - [ ] Increment
 - [ ] Decrement
 ### Loops
-- [ ] `for` Loop
+- [T] `for` Loop, NEEDS TESTING
 ## Compiler
+- [Y] Power Operation
 ## Virtual Machine
+- [Y] Power Operation
