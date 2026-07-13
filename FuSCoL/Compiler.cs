@@ -206,32 +206,33 @@ public class Compiler( bool shouldLog_ = true ) {
         int? instTest = null;
         int? instUpdt = null;
         
-
+        /// Counter Var Init ///
         if( stmt.Counter[0] is Stmt.VarDeclarationCase init ){
             forLoopContext.locals[ init.Name ] = slot;
-            Emit( init, instructions, forLoopContext );
+            Emit( init, instructions, forLoopContext ); // ADD COUNTER INIT INSTRUCTION WITHIN CONTEXT
+            
+            instTest = instructions.Count;
             instBody = instructions.Count+1;
-            instructions.Add( new Instruction.Jump( instBody ) );
+            
 
         }else{  throw new InvalidOperationException( $"Expected a counter var initialization, got {stmt.Counter[0]}" );  }
 
+        /// Counter Exit Test ///
         if( stmt.Counter[1] is Stmt.ExpressionStmtCase test ){
+            instructions.Add( new Instruction.HALT() ); // FIXME: JUMP OVER LOOP BODY IF FALSE
 
         }else{  throw new InvalidOperationException( $"Expected a counter var test, got {stmt.Counter[1]}" );  }
 
-        if( stmt.Counter[2] is Stmt.VarUpdateCase updt ){
+        /// Counter Update Check ///
+        if( stmt.Counter[2] is not Stmt.VarUpdateCase )
+            throw new InvalidOperationException( $"Expected a counter var update, got {stmt.Counter[2]}" );
 
-        }else{  throw new InvalidOperationException( $"Expected a counter var update, got {stmt.Counter[2]}" );  }
 
-
-        foreach( string parameter in stmt.Parameters ){
-            // if( !functionContext.locals.TryGetValue( parameter, out int? _ ) )
-            if( functionContext.locals.TryGetValue( parameter, out int? _ ) )
-                throw new InvalidOperationException( "Duplicate param defeinition" );
-            
+        foreach( Stmt bodyStmt in stmt.Body ){
+            Emit( bodyStmt, instructions, forLoopContext );
         }
 
-        foreach( Stmt bodyStatement in stmt.Body ){    }
+        
     }
 
 
