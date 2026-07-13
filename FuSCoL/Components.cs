@@ -52,23 +52,23 @@ public class Token( TokenType type_, string lit = "" ) {
     public string    literal = lit;
 
 
-    public override string ToString() => $"<T : {type} = '{literal}'>";
+    public override string ToString() => $"<T: {type} = '{literal}'>";
 }
 
 
 
 public abstract record Expr {
     public sealed record NumberLiteralCase ( int Value ) : Expr {  
-        public override string ToString() => $"<E : Number = {Value}>";  
+        public override string ToString() => $"<E: Number = {Value}>";  
     }
     public sealed record BinaryCase ( Expr Left, Token Operator, Expr Right ) : Expr {  
-        public override string ToString() => $"<E : Op = {Left} {Operator} {Right}>";  
+        public override string ToString() => $"<E: Op = {Left} {Operator} {Right}>";  
     }
     public sealed record VariableCase ( string Name ) : Expr {  
-        public override string ToString() => $"<E : Var = {Name}>";  
+        public override string ToString() => $"<E: Var = {Name}>";  
     }
     public sealed record FunctionCallCase ( string Name, List<Expr> Arguments ) : Expr {  
-        public override string ToString() => $"<E : Var = {Name}, {Arguments}>";  
+        public override string ToString() => $"<E: Var = {Name}, {Arguments}>";  
     }
 
     public static Expr NumberLiteral( int Value ) => new NumberLiteralCase( Value ); 
@@ -106,29 +106,29 @@ public abstract record Stmt{
     }
 
     public sealed record ExpressionStmtCase( Expr Expression ) : Stmt {  
-        public override string ToString() => $"<S : Expr = {Expression}>";  
+        public override string ToString() => $"<S: Expr = {Expression}>";  
     }
 
     public sealed record VarUpdateCase( string Name, Expr Value ) : Stmt {  
-        public override string ToString() => $"<S : Update = {Name}, {Value}>";  
+        public override string ToString() => $"<S: Update = {Name}, {Value}>";  
     }
 
     public sealed record IfStmtCase( Expr Condition, List<Stmt> Body ) : Stmt {  
-        public override string ToString() => $"<S : if = {Condition}, {Body}>";  
+        public override string ToString() => $"<S: if = {Condition}, {Body}>";  
     }
 
     public sealed record FunctionDeclarationCase( string Name, 
                                                   List<string> Parameters, 
                                                   List<Stmt> Body ) : Stmt {  
-        public override string ToString() => $"<S : Function = {Name}, {Parameters}, {Body}>";  
+        public override string ToString() => $"<S: Function = {Name}, {Parameters}, {Body}>";  
     }
 
     public sealed record ForLoopCase( List<Stmt> Counter, List<Stmt> Body ) : Stmt {  
-        public override string ToString() => $"<S : For = {Counter}, {Body}>";  
+        public override string ToString() => $"<S: For = {Counter}, {Body}>";  
     }
 
     public sealed record ReturnStmtCase( Expr Value ) : Stmt {  
-        public override string ToString() => $"<S : Return = {Value}>";  
+        public override string ToString() => $"<S: Return = {Value}>";  
     }
 
     // factory methods - this is the API you actually call
@@ -150,32 +150,32 @@ public abstract record Instruction {
     private Instruction() { }
 
     /// Stack ///
-    public sealed record HALT() : Instruction {  public override string ToString() => "HALT";  }
+    public sealed record HALT() : Instruction {  public override string ToString() => "<I: HALT>";  }
 
     /// Stack ///
-    public sealed record PushInt( int Value ) : Instruction {  public override string ToString() => $"Push {Value}";  }
+    public sealed record PushInt( int Value ) : Instruction {  public override string ToString() => $"<I: Push {Value}>";  }
 
     /// Unary Ops ///
-    public sealed record Increment : Instruction {  public override string ToString() => "Incr";  }
-    public sealed record Decrement : Instruction {  public override string ToString() => "Decr";  }
+    public sealed record Increment : Instruction {  public override string ToString() => "<I: Incr>";  }
+    public sealed record Decrement : Instruction {  public override string ToString() => "<I: Decr>";  }
     
     /// Binary Ops ///
-    public sealed record Add /*---*/ : Instruction {  public override string ToString() => "Add";  }
-    public sealed record Sub /*---*/ : Instruction {  public override string ToString() => "Sub";  }
-    public sealed record Mul /*---*/ : Instruction {  public override string ToString() => "Mul";  }
-    public sealed record Div /*---*/ : Instruction {  public override string ToString() => "Div";  }
-    public sealed record Exp /*---*/ : Instruction {  public override string ToString() => "Exp";  }
-    public sealed record LessThan    : Instruction {  public override string ToString() => "LessThan";  }
-    public sealed record GreaterThan : Instruction {  public override string ToString() => "GreaterThan";  }
+    public sealed record Add /*---*/ : Instruction {  public override string ToString() => "<I: Add>";  }
+    public sealed record Sub /*---*/ : Instruction {  public override string ToString() => "<I: Sub>";  }
+    public sealed record Mul /*---*/ : Instruction {  public override string ToString() => "<I: Mul>";  }
+    public sealed record Div /*---*/ : Instruction {  public override string ToString() => "<I: Div>";  }
+    public sealed record Exp /*---*/ : Instruction {  public override string ToString() => "<I: Exp>";  }
+    public sealed record LessThan    : Instruction {  public override string ToString() => "<I: LessThan>";  }
+    public sealed record GreaterThan : Instruction {  public override string ToString() => "<I: GreaterThan>";  }
 
     /// Function / Context / Loop ///
-    public sealed record LoadLocal( int? Slot ) /*------------*/ : Instruction {  public override string ToString() => $"Load {Slot}";  }
-    public sealed record StoreLocal( int? Slot ) /*-----------*/ : Instruction {  public override string ToString() => $"Store {Slot}";  }
-    public sealed record JumpIfFalse( int? Target ) /*--------*/ : Instruction {  public override string ToString() => $"Jump If False to {Target}";  }
-    public sealed record Jump( int? Target ) /*---------------*/ : Instruction {  public override string ToString() => $"Jump to {Target}";  }
-    public sealed record CallFunction( int? Address, int Arity ) : Instruction {  public override string ToString() => $"Call {Address}";  }
+    public sealed record LoadLocal( int? Slot ) /*------------*/ : Instruction {  public override string ToString() => $"<I: Load {Slot}>";  }
+    public sealed record StoreLocal( int? Slot ) /*-----------*/ : Instruction {  public override string ToString() => $"<I: Store {Slot}>";  }
+    public sealed record JumpIfFalse( int? Target ) /*--------*/ : Instruction {  public override string ToString() => $"<I: Jump If False to {Target}>";  }
+    public sealed record Jump( int? Target ) /*---------------*/ : Instruction {  public override string ToString() => $"<I: Jump to {Target}>";  }
+    public sealed record CallFunction( int? Address, int Arity ) : Instruction {  public override string ToString() => $"<I: Call {Address}>";  }
     
-    public sealed record Return : Instruction {  public override string ToString() => "Return";  }
+    public sealed record Return : Instruction {  public override string ToString() => "<I: Return>";  }
 }
 
 
