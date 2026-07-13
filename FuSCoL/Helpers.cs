@@ -1,5 +1,25 @@
 namespace fuscol{
 
+
+public static class ListExtensions {
+
+    public static string ToDisplayString(this List<int?> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+
+
+    public static string ToDisplayString(this List<Expr> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+
+
+    public static string ToDisplayString(this List<Stmt> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+
+
+    public static string ToDisplayString(this List<string> list) =>
+        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
+}
+
+
 /// <summary>
 /// Functions supporting the FuSCoL interpreter  
 /// </summary>

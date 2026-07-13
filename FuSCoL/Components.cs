@@ -82,25 +82,6 @@ public abstract record Expr {
 }
 
 
-public static class ListExtensions {
-
-    public static string ToDisplayString(this List<int?> list) =>
-        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
-
-
-    public static string ToDisplayString(this List<Expr> list) =>
-        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
-
-
-    public static string ToDisplayString(this List<Stmt> list) =>
-        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
-
-
-    public static string ToDisplayString(this List<string> list) =>
-        "[" + string.Join(", ", list.Select(x => x?.ToString() ?? "null")) + "]";
-}
-
-
 public abstract record Stmt{
 
     // concrete cases - names are internal implementation detail
