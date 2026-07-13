@@ -200,7 +200,8 @@ public class Compiler( bool shouldLog_ = true ) {
     protected void EmitForLoop( Stmt.ForLoopCase stmt, List<Instruction> instructions ) {
 
         LocalContext forLoopContext = new(){  isForLoopBody = true  };
-        int? slot = forLoopContext.GetNextSlot();
+        
+        int? slot     = forLoopContext.GetNextSlot();
         int? instBody = null;
         int? instTest = null;
         int? instUpdt = null;
