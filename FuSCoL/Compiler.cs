@@ -201,38 +201,39 @@ public class Compiler( bool shouldLog_ = true ) {
 
         LocalContext forLoopContext = new(){  isForLoopBody = true  };
         
-        int? slot     = forLoopContext.GetNextSlot();
-        int? instBody = null;
-        int? instTest = null;
-        int? instUpdt = null;
+        int? slot = forLoopContext.GetNextSlot();
+        int? instTest;
+        int? instJump;
+        int? instAftr;
         
         /// Counter Var Init ///
         if( stmt.Counter[0] is Stmt.VarDeclarationCase init ){
             forLoopContext.locals[ init.Name ] = slot;
-            Emit( init, instructions, forLoopContext ); // ADD COUNTER INIT INSTRUCTION WITHIN CONTEXT
-            
-            instTest = instructions.Count;
-            instBody = instructions.Count+1;
-            
-
+            Emit( init, instructions, forLoopContext ); // Add counter instruction within loop context
         }else{  throw new InvalidOperationException( $"Expected a counter var initialization, got {stmt.Counter[0]}" );  }
 
         /// Counter Exit Test ///
         if( stmt.Counter[1] is Stmt.ExpressionStmtCase test ){
-            instructions.Add( new Instruction.HALT() ); // FIXME: JUMP OVER LOOP BODY IF FALSE
+            instTest = instructions.Count;
+            Emit( test, instructions, forLoopContext ); // Add counter test instruction within loop context
+            instJump = instructions.Count;
+            instructions.Add( new Instruction.HALT() ); // Placeholder for loop skip, location pending
 
         }else{  throw new InvalidOperationException( $"Expected a counter var test, got {stmt.Counter[1]}" );  }
 
+        /// Loop Body ///
+        foreach( Stmt bodyStmt in stmt.Body ){  Emit( bodyStmt, instructions, forLoopContext );  }
+        instAftr = instructions.Count+1;
+
         /// Counter Update Check ///
-        if( stmt.Counter[2] is not Stmt.VarUpdateCase )
-            throw new InvalidOperationException( $"Expected a counter var update, got {stmt.Counter[2]}" );
+        if( stmt.Counter[2] is Stmt.VarUpdateCase updt ){
+            Emit( updt, instructions, forLoopContext ); // Add counter update instruction within loop context
+            instructions.Add( new Instruction.Jump( instTest ) ); // FIXME: JUMP OVER LOOP BODY IF FALSE
 
+        }else{  throw new InvalidOperationException( $"Expected a counter var update, got {stmt.Counter[2]}" );  }
 
-        foreach( Stmt bodyStmt in stmt.Body ){
-            Emit( bodyStmt, instructions, forLoopContext );
-        }
-
-        
+        // Set loop skip
+        instructions[ (int) instJump ] = new Instruction.JumpIfFalse( instAftr );
     }
 
 
@@ -297,7 +298,7 @@ public class Compiler( bool shouldLog_ = true ) {
             instructions.Add( new Instruction.Return() );
 
         }else if( stmt is Stmt.ForLoopCase stmtFL ){
-            EmitForLoop( stmtFL );
+            EmitForLoop( stmtFL, instructions );
 
         }else{
             throw new InvalidOperationException( $"BONK" );
