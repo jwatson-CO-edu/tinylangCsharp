@@ -11,9 +11,9 @@ public class Compiler( bool shouldLog_ = true ) {
         public Dictionary<string,int?> locals;
         public int? /*--------------*/ nextLocalSlot;
         public bool /*--------------*/ isFunctionBody;
-        public bool /*--------------*/ isForBody;
+        public bool /*--------------*/ isForLoopBody;
 
-        public LocalContext(){  locals = [];  nextLocalSlot = 0;  isFunctionBody = false;  isForBody = false;  }
+        public LocalContext(){  locals = [];  nextLocalSlot = 0;  isFunctionBody = false;  isForLoopBody = false;  }
 
         /// <summary>
         /// Return the currently avaialble slot number and increment slot number
@@ -37,7 +37,6 @@ public class Compiler( bool shouldLog_ = true ) {
         public FunctionSignature(){  parameters = [];  address = null;  }
     }
 
-    // FIXME: FOR LOOP IS ANONYMOUS STACK FRAME ??? NO SIGNATURE ???
 
     /// <summary>
     /// Function name, Instruction index, and number of args
@@ -67,6 +66,10 @@ public class Compiler( bool shouldLog_ = true ) {
     /// </summary>
     protected static Instruction InstructionForOperator( Token op ) {
         return op.type switch{ // `swtich` EXPRESSION, NOT statement
+            /// Unary (Prefix) ///
+            TokenType.DBBL_PLUS  => new Instruction.Increment(),
+            TokenType.DBBL_MINUS => new Instruction.Decrement(),
+            /// Binary ///
             TokenType.PLUS /*---*/ => new Instruction.Add(),
             TokenType.MINUS /*--*/ => new Instruction.Sub(),
             TokenType.STAR /*---*/ => new Instruction.Mul(),
@@ -163,7 +166,7 @@ public class Compiler( bool shouldLog_ = true ) {
         // Function Call: 
         }else if( expr is Expr.FunctionCallCase exprFC ){
 
-            if (!functionSignatures.TryGetValue( exprFC.Name, out FunctionSignature? signature))
+            if( !functionSignatures.TryGetValue( exprFC.Name, out FunctionSignature? signature ) )
                 throw new InvalidOperationException( "Calling unknown function" );
             if( signature == null ){  throw new InvalidOperationException( "NULL: Calling unknown function" );  }
             if( signature.parameters.Count != exprFC.Arguments.Count ){
@@ -178,9 +181,9 @@ public class Compiler( bool shouldLog_ = true ) {
                 instructions.Add( new Instruction.CallFunction( signature.address, exprFC.Arguments.Count ) );
             }else{
                 PendingFunctionCall fc = new(){
-                    name = exprFC.Name,
+                    name /*-------*/ = exprFC.Name,
                     instructionIndex = instructions.Count, 
-                    arity = exprFC.Arguments.Count
+                    arity /*------*/ = exprFC.Arguments.Count
                 };
                 pendingFunctionCalls.Add( fc );
                 instructions.Add( new Instruction.CallFunction( 999, 999 ) ); 
@@ -188,6 +191,46 @@ public class Compiler( bool shouldLog_ = true ) {
         }else{
             throw new InvalidOperationException( $"BONK" );
         }
+    }
+
+
+    /// <summary>
+    /// Store arguments in the local context, Add instructions in the function body
+    /// </summary>
+    protected void EmitForLoop( Stmt.ForLoopCase stmt, List<Instruction> instructions ) {
+
+        LocalContext forLoopContext = new(){  isForLoopBody = true  };
+        int? slot = forLoopContext.GetNextSlot();
+        int? instBody = null;
+        int? instTest = null;
+        int? instUpdt = null;
+        
+
+        if( stmt.Counter[0] is Stmt.VarDeclarationCase init ){
+            forLoopContext.locals[ init.Name ] = slot;
+            Emit( init, instructions, forLoopContext );
+            instBody = instructions.Count+1;
+            instructions.Add( new Instruction.Jump( instBody ) );
+
+        }else{  throw new InvalidOperationException( $"Expected a counter var initialization, got {stmt.Counter[0]}" );  }
+
+        if( stmt.Counter[1] is Stmt.ExpressionStmtCase test ){
+
+        }else{  throw new InvalidOperationException( $"Expected a counter var test, got {stmt.Counter[1]}" );  }
+
+        if( stmt.Counter[2] is Stmt.VarUpdateCase updt ){
+
+        }else{  throw new InvalidOperationException( $"Expected a counter var update, got {stmt.Counter[2]}" );  }
+
+
+        foreach( string parameter in stmt.Parameters ){
+            // if( !functionContext.locals.TryGetValue( parameter, out int? _ ) )
+            if( functionContext.locals.TryGetValue( parameter, out int? _ ) )
+                throw new InvalidOperationException( "Duplicate param defeinition" );
+            
+        }
+
+        foreach( Stmt bodyStatement in stmt.Body ){    }
     }
 
 
@@ -250,6 +293,10 @@ public class Compiler( bool shouldLog_ = true ) {
             }
             Emit( stmtRT.Value, instructions, context );
             instructions.Add( new Instruction.Return() );
+
+        }else if( stmt is Stmt.ForLoopCase stmtFL ){
+            EmitForLoop( stmtFL );
+
         }else{
             throw new InvalidOperationException( $"BONK" );
         }

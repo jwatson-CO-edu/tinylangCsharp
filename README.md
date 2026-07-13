@@ -10,7 +10,7 @@ C# translation of the `tinylang` compiler presented by [Milen Patel](https://git
 - Detailed Logging
 
 ## `./FuSCoL` : Fun-Size Computer Language
-Extension of the C# translation.
+Extension of the C# translation. In order of increasing difficulty and/or complexity:
 - More math operators?
 - Loops?
 - Comments?
@@ -20,5 +20,6 @@ Extension of the C# translation.
 - Structs?
 - REPL?
 - Better VM? (Faster? (C++ ?))
+- Local Functions?
 - Multiprocessing?
 - Networking?

@@ -249,7 +249,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     protected Stmt ParseForLoop() {
 
         Consume( TokenType.OPEN_PARENTHESIS, "Expected ( after if" );
-        Stmt init = ParseStatement();
+        Stmt init = ParseVarDeclaration();
         Stmt test = ParseStatement();
         Stmt incr = ParseStatement();
         Consume( TokenType.CLOSE_PARENTHESIS, "Expected ) after if" );

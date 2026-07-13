@@ -149,8 +149,17 @@ public abstract record Instruction {
     // Nested types CAN call it (C# lets nested types see the outer type's privates).
     private Instruction() { }
 
-    public sealed record PushInt( int Value ) : Instruction;
+    /// Stack ///
+    public sealed record HALT() : Instruction {  public override string ToString() => "HALT";  }
 
+    /// Stack ///
+    public sealed record PushInt( int Value ) : Instruction {  public override string ToString() => $"Push {Value}";  }
+
+    /// Unary Ops ///
+    public sealed record Increment : Instruction {  public override string ToString() => "Incr";  }
+    public sealed record Decrement : Instruction {  public override string ToString() => "Decr";  }
+    
+    /// Binary Ops ///
     public sealed record Add /*---*/ : Instruction {  public override string ToString() => "Add";  }
     public sealed record Sub /*---*/ : Instruction {  public override string ToString() => "Sub";  }
     public sealed record Mul /*---*/ : Instruction {  public override string ToString() => "Mul";  }
@@ -159,11 +168,12 @@ public abstract record Instruction {
     public sealed record LessThan    : Instruction {  public override string ToString() => "LessThan";  }
     public sealed record GreaterThan : Instruction {  public override string ToString() => "GreaterThan";  }
 
-    public sealed record LoadLocal( int? Slot ) : Instruction;
-    public sealed record StoreLocal( int? Slot ) : Instruction;
-    public sealed record JumpIfFalse( int? Target ) : Instruction;
-    public sealed record Jump( int? Target ) : Instruction;
-    public sealed record CallFunction( int? Address, int Arity ) : Instruction;
+    /// Function / Context / Loop ///
+    public sealed record LoadLocal( int? Slot ) /*------------*/ : Instruction {  public override string ToString() => $"Load {Slot}";  }
+    public sealed record StoreLocal( int? Slot ) /*-----------*/ : Instruction {  public override string ToString() => $"Store {Slot}";  }
+    public sealed record JumpIfFalse( int? Target ) /*--------*/ : Instruction {  public override string ToString() => $"Jump If False to {Target}";  }
+    public sealed record Jump( int? Target ) /*---------------*/ : Instruction {  public override string ToString() => $"Jump to {Target}";  }
+    public sealed record CallFunction( int? Address, int Arity ) : Instruction {  public override string ToString() => $"Call {Address}";  }
     
     public sealed record Return : Instruction {  public override string ToString() => "Return";  }
 }
