@@ -138,6 +138,32 @@ public class Compiler( bool shouldLog_ = true ) {
             Log( $"[{logId}] Emit called with number literal ${exprNL.Value}" );
             instructions.Add( new Instruction.PushInt( exprNL.Value ) );
 
+        }else if( expr is Expr.UnaryCase exprUn ){
+            
+            int? slot = context.locals[ exprUn.Name ];
+
+            if( slot == null ){
+                throw new InvalidOperationException( $"Referencing undefined variable ${exprUn.Name}" );
+            }
+
+            Log( $"[{logId}] Fetch variable {exprUn.Name} from local context at slot {slot}" );
+
+            instructions.Add( new Instruction.LoadLocal( slot ) );
+            instructions.Add( new Instruction.PushInt(1) );
+
+            switch( exprUn.Operator.type ){
+                case TokenType.DBBL_PLUS: 
+                    instructions.Add( new Instruction.Add() );
+                    break;
+                case TokenType.DBBL_MINUS: 
+                    instructions.Add( new Instruction.Sub() );
+                    break;
+                default:
+                    throw new InvalidOperationException( $"${exprUn.Operator.type} is NOT a unary operator!" );
+            }
+            instructions.Add( new Instruction.StoreLocal( slot ) );
+            instructions.Add( new Instruction.LoadLocal( slot ) ); // RETURN NEW VALUE ?????
+
         // Binary Operation: Apply an operation to two literals
         }else if( expr is Expr.BinaryCase exprBN ){
             Log( $"[{logId}] Emit called with binary expression ${exprBN}");

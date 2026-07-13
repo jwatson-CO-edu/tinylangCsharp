@@ -51,7 +51,6 @@ public class Token( TokenType type_, string lit = "" ) {
     public TokenType type    = type_;
     public string    literal = lit;
 
-
     public override string ToString() => $"<T: {type} = '{literal}'>";
 }
 
@@ -60,6 +59,9 @@ public class Token( TokenType type_, string lit = "" ) {
 public abstract record Expr {
     public sealed record NumberLiteralCase ( int Value ) : Expr {  
         public override string ToString() => $"<E: Number = {Value}>";  
+    }
+    public sealed record UnaryCase ( Token Operator, string Name ) : Expr {  
+        public override string ToString() => $"<E: Op = {Operator} {Name}>";  
     }
     public sealed record BinaryCase ( Expr Left, Token Operator, Expr Right ) : Expr {  
         public override string ToString() => $"<E: Op = {Left} {Operator} {Right}>";  
@@ -72,6 +74,7 @@ public abstract record Expr {
     }
 
     public static Expr NumberLiteral( int Value ) => new NumberLiteralCase( Value ); 
+    public static Expr Unary( Token Operator, string Name ) => new UnaryCase( Operator, Name ); 
     public static Expr Binary( Expr Left, Token Operator, Expr Right ) => new BinaryCase( Left, Operator, Right ); 
     public static Expr Variable( string Name ) => new VariableCase( Name ); 
     public static Expr FunctionCall( string Name, List<Expr> Arguments ) => new FunctionCallCase( Name, Arguments );
