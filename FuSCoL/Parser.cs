@@ -56,6 +56,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     /// If the token at the cursor has the given `type`, then return it and advance, Otherwise ERROR
     /// </summary>
     protected Token Consume( TokenType type, string message ) {
+        Log( $"Attempt to Consume token of type {type}: {Peek()}" );
         if( Check( type ) ){  return Advance();  }
         throw new ArgumentException( $"Unexpected token: {message}" );
     }
@@ -207,6 +208,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     /// Parse a variable declaration statement (including math expression)
     /// </summary>
     protected Stmt ParseVarDeclaration() {
+        Log( "Entered var declaration!" );
         string name = Consume( TokenType.IDENTIFIER, "Expect a name for a variable declaration" ).literal;
         Consume( TokenType.EQUAL, "Expected = sign after variable name" );
         Expr initializer = ParseExpression();
@@ -249,6 +251,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     protected Stmt ParseForLoop() {
 
         Consume( TokenType.OPEN_PARENTHESIS, "Expected ( after if" );
+        Consume( TokenType.LET, "Expected keyword `let`" );
         Stmt init = ParseVarDeclaration();
         Stmt test = ParseStatement();
         Stmt incr = ParseStatement();
