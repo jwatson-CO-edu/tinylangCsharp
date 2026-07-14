@@ -89,6 +89,14 @@ public abstract record Stmt{
         public override string ToString() => $"<S : Declare = {Name}, {Initializer}>";  
     }
 
+    public sealed record IncrementCase( string Name ) : Stmt {  
+        public override string ToString() => $"<S : Incr {Name}>";  
+    }
+
+    public sealed record DecrementCase( string Name ) : Stmt {  
+        public override string ToString() => $"<S : Decr {Name}>";  
+    }
+
     public sealed record ExpressionStmtCase( Expr Expression ) : Stmt {  
         public override string ToString() => $"<S: Expr = {Expression}>";  
     }
@@ -123,6 +131,8 @@ public abstract record Stmt{
     public static Stmt FunctionDeclaration( string name, List<string> parameters, List<Stmt> body ) => 
         new FunctionDeclarationCase( name, parameters, body );
     public static Stmt ForLoop( List<Stmt> counter, List<Stmt> body ) => new ForLoopCase( counter, body );
+    public static Stmt Increment( string name ) => new IncrementCase( name );
+    public static Stmt Decrement( string name ) => new DecrementCase( name );
     public static Stmt ReturnStmt( Expr value ) => new ReturnStmtCase( value );
 }
 

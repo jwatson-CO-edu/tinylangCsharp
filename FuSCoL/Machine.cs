@@ -147,7 +147,7 @@ public class Machine( bool shouldLog_ = true ) {
             restoreLocals( frame.locals );
             return frame.returnAddress;
         }else{
-            throw new InvalidOperationException( $"BONK" );
+            throw new InvalidOperationException( $"BONK: Execute Instruction" );
         }
         return null;
     }

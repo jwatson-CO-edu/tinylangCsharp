@@ -138,32 +138,6 @@ public class Compiler( bool shouldLog_ = true ) {
             Log( $"[{logId}] Emit called with number literal ${exprNL.Value}" );
             instructions.Add( new Instruction.PushInt( exprNL.Value ) );
 
-        }else if( expr is Expr.UnaryCase exprUn ){
-            
-            int? slot = context.locals[ exprUn.Name ];
-
-            if( slot == null ){
-                throw new InvalidOperationException( $"Referencing undefined variable ${exprUn.Name}" );
-            }
-
-            Log( $"[{logId}] Fetch variable {exprUn.Name} from local context at slot {slot}" );
-
-            instructions.Add( new Instruction.LoadLocal( slot ) );
-            instructions.Add( new Instruction.PushInt(1) );
-
-            switch( exprUn.Operator.type ){
-                case TokenType.DBBL_PLUS: 
-                    instructions.Add( new Instruction.Add() );
-                    break;
-                case TokenType.DBBL_MINUS: 
-                    instructions.Add( new Instruction.Sub() );
-                    break;
-                default:
-                    throw new InvalidOperationException( $"${exprUn.Operator.type} is NOT a unary operator!" );
-            }
-            instructions.Add( new Instruction.StoreLocal( slot ) );
-            instructions.Add( new Instruction.LoadLocal( slot ) ); // RETURN NEW VALUE ?????
-
         // Binary Operation: Apply an operation to two literals
         }else if( expr is Expr.BinaryCase exprBN ){
             Log( $"[{logId}] Emit called with binary expression ${exprBN}");
@@ -215,7 +189,7 @@ public class Compiler( bool shouldLog_ = true ) {
                 instructions.Add( new Instruction.CallFunction( 999, 999 ) ); 
             }
         }else{
-            throw new InvalidOperationException( $"BONK" );
+            throw new InvalidOperationException( $"BONK: Emit Expression" );
         }
     }
 
@@ -227,14 +201,14 @@ public class Compiler( bool shouldLog_ = true ) {
 
         LocalContext forLoopContext = new(){  isForLoopBody = true  };
         
-        int? slot = forLoopContext.GetNextSlot();
+        // int? slot = forLoopContext.GetNextSlot();
         int? instTest;
         int? instJump;
         int? instAftr;
         
         /// Counter Var Init ///
         if( stmt.Counter[0] is Stmt.VarDeclarationCase init ){
-            forLoopContext.locals[ init.Name ] = slot;
+            // forLoopContext.locals[ init.Name ] = slot;
             Emit( init, instructions, forLoopContext ); // Add counter instruction within loop context
         }else{  throw new InvalidOperationException( $"Expected a counter var initialization, got {stmt.Counter[0]}" );  }
 
@@ -249,10 +223,11 @@ public class Compiler( bool shouldLog_ = true ) {
 
         /// Loop Body ///
         foreach( Stmt bodyStmt in stmt.Body ){  Emit( bodyStmt, instructions, forLoopContext );  }
-        instAftr = instructions.Count+1;
+        // instAftr = instructions.Count+1;
+        instAftr = instructions.Count+5;
 
         /// Counter Update Check ///
-        if( stmt.Counter[2] is Stmt.VarUpdateCase updt ){
+        if( stmt.Counter[2] is Stmt.IncrementCase updt ){
             Emit( updt, instructions, forLoopContext ); // Add counter update instruction within loop context
             instructions.Add( new Instruction.Jump( instTest ) ); // FIXME: JUMP OVER LOOP BODY IF FALSE
 
@@ -260,6 +235,42 @@ public class Compiler( bool shouldLog_ = true ) {
 
         // Set loop skip
         instructions[ (int) instJump ] = new Instruction.JumpIfFalse( instAftr );
+    }
+
+
+    /// <summary>
+    /// Store arguments in the local context, Add instructions in the function body
+    /// </summary>
+    protected void EmitIncrement( Stmt.IncrementCase stmt, List<Instruction> instructions, LocalContext context ){
+        int? slot = context.locals[ stmt.Name ];
+
+        if( slot == null ){
+            throw new InvalidOperationException( $"Referencing undefined variable ${stmt.Name}" );
+        }
+
+        instructions.Add( new Instruction.LoadLocal( slot ) );
+        instructions.Add( new Instruction.PushInt(1) );
+        instructions.Add( new Instruction.Add() );
+        instructions.Add( new Instruction.StoreLocal( slot ) );
+        // instructions.Add( new Instruction.LoadLocal( slot ) ); // RETURN NEW VALUE ?????
+    }
+
+
+    /// <summary>
+    /// Store arguments in the local context, Add instructions in the function body
+    /// </summary>
+    protected void EmitDecrement( Stmt.DecrementCase stmt, List<Instruction> instructions, LocalContext context ){
+        int? slot = context.locals[ stmt.Name ];
+
+        if( slot == null ){
+            throw new InvalidOperationException( $"Referencing undefined variable ${stmt.Name}" );
+        }
+
+        instructions.Add( new Instruction.LoadLocal( slot ) );
+        instructions.Add( new Instruction.PushInt(1) );
+        instructions.Add( new Instruction.Sub() );
+        instructions.Add( new Instruction.StoreLocal( slot ) );
+        // instructions.Add( new Instruction.LoadLocal( slot ) ); // RETURN NEW VALUE ?????
     }
 
 
@@ -275,7 +286,7 @@ public class Compiler( bool shouldLog_ = true ) {
         // Variable Declaration: Store a value in a new named slot
         }else if( stmt is Stmt.VarDeclarationCase stmtVD ){
             if( context.locals.TryGetValue( stmtVD.Name, out _ ) )
-                throw new InvalidOperationException( $"Duplicate definition of variable detected ${stmtVD.Name}" );
+                throw new InvalidOperationException( $"Duplicate definition of variable detected {stmtVD.Name}" );
             
             Emit( stmtVD.Initializer, instructions, context );
             
@@ -326,8 +337,14 @@ public class Compiler( bool shouldLog_ = true ) {
         }else if( stmt is Stmt.ForLoopCase stmtFL ){
             EmitForLoop( stmtFL, instructions );
 
+        }else if( stmt is Stmt.IncrementCase stmtIn ){
+            EmitIncrement( stmtIn, instructions, context );
+        
+        }else if( stmt is Stmt.DecrementCase stmtDe ){
+            EmitDecrement( stmtDe, instructions, context );
+
         }else{
-            throw new InvalidOperationException( $"BONK" );
+            throw new InvalidOperationException( $"BONK: Emit Statement" );
         }
     }   
 

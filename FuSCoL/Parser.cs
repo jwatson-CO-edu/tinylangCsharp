@@ -85,7 +85,7 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
 
         // Case 1: integer
         if( Match( TokenType.NUMBER ) ){
-            Log( "parseFactor() matched a ${previous()} , will return literal" );
+            Log( $"parseFactor() matched a ${Previous()}, will return literal" );
             return Expr.NumberLiteral( int.Parse( Previous().literal ) );
         }
 
@@ -266,15 +266,31 @@ public class Parser ( List<Token> tokens_, bool shouldLog_ ) {
     }
 
 
+    protected Stmt ParseIncrement() {
+        string name = Consume( TokenType.IDENTIFIER, "Expect a name for a variable increment" ).literal;
+        Consume( TokenType.SEMICOLON, "Expect a semicolon after increment" );
+        return Stmt.Increment( name );
+    }
+
+
+    protected Stmt ParseDecrement() {
+        string name = Consume( TokenType.IDENTIFIER, "Expect a name for a variable decrement" ).literal;
+        Consume( TokenType.SEMICOLON, "Expect a semicolon after decrement" );
+        return Stmt.Decrement( name );
+    }
+
+
     /// <summary>
     /// Parse a statement
     /// </summary>
     protected Stmt ParseStatement() {
-        if( Match( TokenType.RETURN ) ){  return ParseReturnStatement();  }
-        if( Match( TokenType.LET    ) ){  return ParseVarDeclaration();   }
-        if( Match( TokenType.UPDATE ) ){  return ParseVarUpdate(); /*--*/ }
-        if( Match( TokenType.IF     ) ){  return ParseIfStatement(); /**/ }
-        if( Match( TokenType.FOR    ) ){  return ParseForLoop(); /*----*/ }
+        if( Match( TokenType.RETURN     ) ){  return ParseReturnStatement();  }
+        if( Match( TokenType.LET /*--*/ ) ){  return ParseVarDeclaration();   }
+        if( Match( TokenType.UPDATE     ) ){  return ParseVarUpdate(); /*--*/ }
+        if( Match( TokenType.IF /*---*/ ) ){  return ParseIfStatement(); /**/ }
+        if( Match( TokenType.FOR /*--*/ ) ){  return ParseForLoop(); /*----*/ }
+        if( Match( TokenType.DBBL_PLUS  ) ){  return ParseIncrement(); /*--*/ }
+        if( Match( TokenType.DBBL_MINUS ) ){  return ParseDecrement(); /*--*/ }
         return ParseExpressionStatment();
     }
 
