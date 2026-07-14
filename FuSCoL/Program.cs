@@ -1,6 +1,6 @@
 ﻿using fuscol;
 
-Console.WriteLine("Hello, World!");
+Console.WriteLine( "Hello, World!" );
 
 
 // string source = "** ++ --";
