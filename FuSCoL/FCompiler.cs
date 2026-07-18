@@ -86,6 +86,7 @@ public class FCompiler( bool shouldLog_ = true ) {
     protected Dictionary<string,FunctionSignature?> functionSignatures   = [];
     protected List<PendingFunctionCall> /*-------*/ pendingFunctionCalls = [];
     protected int /*-----------------------------*/ nextUniqueNumber     = 1;
+    protected Context /*-------------------------*/ mainContext /*----*/ = new();
 }
 
 }
