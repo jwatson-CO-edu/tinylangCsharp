@@ -145,6 +145,8 @@ public abstract record Instruction {
 
     /// Stack ///
     public sealed record HALT() : Instruction {  public override string ToString() => "<I: HALT>";  }
+    public sealed record FramePush() : Instruction {  public override string ToString() => $"<I: Frame Push: {VM.FRAME_SIZE} Slots>";  }
+    public sealed record FramePop() : Instruction {  public override string ToString() => $"<I: Frame Pop>";  }
 
     /// Stack ///
     public sealed record PushInt( int Value ) : Instruction {  public override string ToString() => $"<I: Push {Value}>";  }

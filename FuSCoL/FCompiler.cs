@@ -1,3 +1,7 @@
+/* ////////// DEV_PLAN /////////////////////////////////////////////////////////////////////////////
+[ ] What does this mean?: `new Instruction.CallFunction( 999, 999 )`, What do the numbers mean?
+*/
+
 
 namespace fuscol{
 
@@ -113,7 +117,23 @@ public class FCompiler( bool shouldLog_ = true ) {
     /// </summary>
     public void Log( string stmt ) {  if( shouldLog ){  Console.WriteLine( stmt );  }  }
     
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public void PushFrame(){  mainContext = mainContext.GetNestedContext();  }
+
     
+    /// <summary>
+    /// 
+    /// </summary>
+    public void PopFrame(){  
+        if( mainContext.parent is not null ){  mainContext = mainContext.parent;  }else{
+            throw new InvalidOperationException( $"Attempted to pop root frame!" );
+        }
+    }
+
+
     /// <summary>
     /// Unary / Binary operator `Token` --to-> `Instruction` lookup
     /// </summary>
@@ -213,8 +233,90 @@ public class FCompiler( bool shouldLog_ = true ) {
             instructions.Add( new Instruction.LoadLocal( slot ) );
 
         // Function Call: 
+        }else if( expr is Expr.FunctionCallCase exprFC ){
+
+            if( !functionSignatures.TryGetValue( exprFC.Name, out FunctionSignature? signature ) )
+                throw new InvalidOperationException( "Calling unknown function" );
+            if( signature == null ){  throw new InvalidOperationException( "NULL: Calling unknown function" );  }
+            if( signature.parameters.Count != exprFC.Arguments.Count ){
+                throw new InvalidOperationException( "Function expected a different number of args than it received" );
+            }
+
+            // For each argument, Add an instruction to get its value
+            foreach( Expr argument in exprFC.Arguments ){  Emit( argument, instructions );  }
+
+            // If function call has an address, Then add the call instruction, Else call is pending, send call instruction to end
+            if( signature.address > 0 ){
+                instructions.Add( new Instruction.CallFunction( signature.address, exprFC.Arguments.Count ) );
+            }else{
+                PendingFunctionCall fc = new(){
+                    name /*-------*/ = exprFC.Name,
+                    instructionIndex = instructions.Count, 
+                    arity /*------*/ = exprFC.Arguments.Count
+                };
+                pendingFunctionCalls.Add( fc );
+                instructions.Add( new Instruction.CallFunction( 999, 999 ) ); 
+            }
+        }else{
+            throw new InvalidOperationException( $"BONK: Emit Expression" );
         }
     }
+
+
+    /// <summary>
+    /// Store arguments in the local context, Add instructions in the function body
+    /// </summary>
+    protected void EmitForLoop( Stmt.ForLoopCase stmt, List<Instruction> instructions ) {
+
+        // LocalContext forLoopContext = new(){  isForLoopBody = true  };
+        PushFrame(); // FIXME: NEEDS TESTING!
+        
+        // int? slot = forLoopContext.GetNextSlot();
+        int? instTest;
+        int? instJump;
+        int? instAftr;
+        
+        /// Counter Var Init ///
+        if( stmt.Counter[0] is Stmt.VarDeclarationCase init ){
+            // forLoopContext.locals[ init.Name ] = slot;
+            Emit( init, instructions ); // Add counter instruction within loop context
+        }else{  throw new InvalidOperationException( $"Expected a counter var initialization, got {stmt.Counter[0]}" );  }
+
+        /// Counter Exit Test ///
+        if( stmt.Counter[1] is Stmt.ExpressionStmtCase test ){
+            instTest = instructions.Count;
+            Emit( test, instructions ); // Add counter test instruction within loop context
+            instJump = instructions.Count;
+            instructions.Add( new Instruction.HALT() ); // Placeholder for loop skip, location pending
+
+        }else{  throw new InvalidOperationException( $"Expected a counter var test, got {stmt.Counter[1]}" );  }
+
+        /// Loop Body ///
+        foreach( Stmt bodyStmt in stmt.Body ){  Emit( bodyStmt, instructions );  }
+        // instAftr = instructions.Count+1;
+        instAftr = instructions.Count+5;
+
+        /// Counter Update Check ///
+        if( stmt.Counter[2] is Stmt.IncrementCase updt ){
+            Emit( updt, instructions ); // Add counter update instruction within loop context
+            instructions.Add( new Instruction.Jump( instTest ) ); 
+
+        }else{  throw new InvalidOperationException( $"Expected a counter var update, got {stmt.Counter[2]}" );  }
+
+        // Set loop skip
+        instructions[ (int) instJump ] = new Instruction.JumpIfFalse( instAftr );
+
+        PopFrame(); // FIXME: NEEDS TESTING!
+    }
+
+
+    /// <summary>
+    /// Interpret the statement as `Instruction`s, Add the instruction(s) to the list of instructions
+    /// </summary>
+    protected void Emit( Stmt stmt, List<Instruction> instructions ) {
+        
+    }
+    
 }
 
 }
